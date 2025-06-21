@@ -65,7 +65,7 @@ function Profiles() {
           headesr: { "Content-Type": "application/json" },
         };
         const user = await axios.get(
-          `https://codecraft-frontend-xuuw.onrender.com/user/getUserDetails/${userId}`,
+          `https://codecraft-sr3j.onrender.com/user/getUserDetails/${userId}`,
           config
         );
         console.log(user);
