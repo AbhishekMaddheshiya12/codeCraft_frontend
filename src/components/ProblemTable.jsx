@@ -23,7 +23,7 @@ function ProblemTable() {
           headers: { "Content-Type": "application/json" },
         };
         const response = await axios.get(
-          "http://localhost:4000/problems/all-problems",
+          "https://codecraft-sr3j.onrender.com/problems/all-problems",
           config
         );
         setProblems(response.data || []);

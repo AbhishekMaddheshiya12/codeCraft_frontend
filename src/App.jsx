@@ -30,7 +30,7 @@ function App() {
           withCredentials: true,
           headers: { "Content-Type": "application/json" },
         };
-        const data = await axios.get("http://localhost:4000/user/me", config);
+        const data = await axios.get("https://codecraft-sr3j.onrender.com/user/me", config);
         console.log(data);
         dispatch(userExist(data.data.user));
       } catch (error) {

@@ -15,7 +15,7 @@ function User() {
           header: { "Content-Type": "application/json" },
         };
         const user = await axios.get(
-          `http://localhost:4000/user/getUserDetails/${userId}`,
+          `https://codecraft-sr3j.onrender.com/user/getUserDetails/${userId}`,
           config
         );
         if (!user) {

@@ -45,7 +45,7 @@ function Discuss() {
           headers: { "Content-Type": "application/json" },
         };
         const newMessage = await axios.get(
-          `http://localhost:4000/user/getMessages/{page}`,
+          `https://codecraft-sr3j.onrender.com/user/getMessages/{page}`,
           config
         );
         console.log(newMessage.data.message);
@@ -60,7 +60,7 @@ function Discuss() {
   }, [page]);
 
   useEffect(() => {
-    socketRef.current = io("http://localhost:4000", {
+    socketRef.current = io("https://codecraft-sr3j.onrender.com", {
       withCredentials: true,
       headers: { "Content-Type": "application/json" },
       transports: ["websocket"],

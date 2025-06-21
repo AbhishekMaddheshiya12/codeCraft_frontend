@@ -32,7 +32,7 @@ function NavBar() {
 
   const handleLogOut = async () => {
     try {
-      const { data } = await axios.get('http://localhost:4000/user/logout', { withCredentials: true });
+      const { data } = await axios.get('https://codecraft-sr3j.onrender.com/user/logout', { withCredentials: true });
       if (data.success) {
         dispatch(userExist(false));
         navigate('/');

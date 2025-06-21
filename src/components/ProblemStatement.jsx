@@ -26,7 +26,7 @@ function ProblemStatement({ problemData, setIsSubmission }) {
         withCredentials: true,
       }
       try {
-        const response = await axios.get(`http://localhost:4000/problems/getLikes/${problemId}`,config);
+        const response = await axios.get(`https://codecraft-sr3j.onrender.com/problems/getLikes/${problemId}`,config);
         setLikes(response.data.likes);
         setIsLiked(response.data.userLike);
         setDisLikes(response.data.dislikes);
@@ -45,7 +45,7 @@ function ProblemStatement({ problemData, setIsSubmission }) {
         withCredentials: true,
       }
       try{
-        const response = await axios.get(`http://localhost:4000/problems/getSolved/${problemId}`,config);
+        const response = await axios.get(`https://codecraft-sr3j.onrender.com/problems/getSolved/${problemId}`,config);
         console.log(response);
         setIsSolved(response.data.solved);
       }catch(error){
@@ -66,7 +66,7 @@ function ProblemStatement({ problemData, setIsSubmission }) {
         },
         withCredentials: true,
       }
-      const response = await axios.post(`http://localhost:4000/problems/like/${problemData._id}`,{},config);
+      const response = await axios.post(`https://codecraft-sr3j.onrender.com/problems/like/${problemData._id}`,{},config);
       console.log(response);
     }catch(error){
       console.log(error);
@@ -82,7 +82,7 @@ function ProblemStatement({ problemData, setIsSubmission }) {
         },
         withCredentials: true,
       }
-      const response = await axios.post(`http://localhost:4000/problems/dislike/${problemData._id}`,{},config);
+      const response = await axios.post(`https://codecraft-sr3j.onrender.com/problems/dislike/${problemData._id}`,{},config);
       console.log(response);
     }catch(error){
       console.log(error);

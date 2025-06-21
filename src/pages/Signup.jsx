@@ -31,7 +31,7 @@ function Signup({ setIsLogin }) {
 
     try {
       const data = await axios.post(
-        "http://localhost:4000/user/signup",
+        "https://codecraft-sr3j.onrender.com/user/signup",
         { username: userName, email, password },
         config
       );

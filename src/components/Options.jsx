@@ -31,7 +31,7 @@ const handleSubmit = async () => {
 
   try {
     const getResponse = await axios.post(
-      "http://localhost:4000/user/updateLanguages",
+      "https://codecraft-sr3j.onrender.com/user/updateLanguages",
       { languages: selected },
       config                    
     );

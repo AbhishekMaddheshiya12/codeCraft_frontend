@@ -19,7 +19,7 @@ function Profile() {
               withCredentials: true,
               header: { "Content-Type": "application/json" },
             }
-            const user = await axios.get(`http://localhost:4000/user/getUserDetails/${userId}`,config);
+            const user = await axios.get(`https://codecraft-sr3j.onrender.com/user/getUserDetails/${userId}`,config);
             console.log(user);
             setUserData(user.data.user);
           }catch(error){

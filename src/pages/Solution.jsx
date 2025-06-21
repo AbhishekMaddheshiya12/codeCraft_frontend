@@ -22,7 +22,7 @@ function Solution() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/problems/${problemId}`);
+        const response = await axios.get(`https://codecraft-sr3j.onrender.com/problems/${problemId}`);
         setProblemData(response?.data?.problem[0]);
         console.log(response.data.problem[0]);
       } catch (error) {

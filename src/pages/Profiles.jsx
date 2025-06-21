@@ -63,7 +63,7 @@ function Profiles() {
           headesr: { "Content-Type": "application/json" },
         };
         const user = await axios.get(
-          `http://localhost:4000/user/getUserDetails/${userId}`,
+          `https://codecraft-frontend-xuuw.onrender.com/user/getUserDetails/${userId}`,
           config
         );
         console.log(user);
@@ -91,7 +91,7 @@ function Profiles() {
       };
 
       const result = await axios.post(
-        "http://localhost:4000/user/upload-avatar",
+        "https://codecraft-sr3j.onrender.com/user/upload-avatar",
         formData,
         config
       );

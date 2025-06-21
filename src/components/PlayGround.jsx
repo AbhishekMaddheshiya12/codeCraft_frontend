@@ -110,7 +110,7 @@ function PlayGround({ tesTCases }) {
     try {
       setLoading(true);
       const res = await axios.post(
-        "http://localhost:4000/user/getSubmission",
+        "https://codecraft-sr3j.onrender.com/user/getSubmission",
         data,
         config
       );
@@ -148,7 +148,7 @@ function PlayGround({ tesTCases }) {
       };
 
       const { data } = await axios.post(
-        "http://localhost:4000/user/judge0-callback",
+        "https://codecraft-sr3j.onrender.com/user/judge0-callback",
         { story, problemId, userId },
         config
       );
@@ -167,7 +167,7 @@ function PlayGround({ tesTCases }) {
       };
       setLoading(true);
       const response = await axios.post(
-        `http://localhost:4000/problems/analyze`,
+        `https://codecraft-sr3j.onrender.com/problems/analyze`,
         { code },
         config
       );

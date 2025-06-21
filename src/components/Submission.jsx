@@ -14,7 +14,7 @@ function Submission(data) {
         header: { "Content-Type": "application/json" },
       };
       const { data } = await axios.get(
-        `http://localhost:4000/user/getSubmission/${userId}/${problemId}`,
+        `https://codecraft-sr3j.onrender.com/user/getSubmission/${userId}/${problemId}`,
         config
       );
       setSubmissionData(data.submission);

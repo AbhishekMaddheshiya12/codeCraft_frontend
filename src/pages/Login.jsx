@@ -33,7 +33,7 @@ function Login({ setIsLogin }) {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:4000/user/login",
+        "https://codecraft-sr3j.onrender.com/user/login",
         { username: userName, password, email },
         config
       );
