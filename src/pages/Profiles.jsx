@@ -35,6 +35,7 @@ import { useSelector } from "react-redux";
 import { VisuallyHiddenInput } from "../components/helper/Styled";
 import toast from "react-hot-toast";
 import LanguageModal from "../components/LanguageModel";
+import Loader from "../components/loader/Loader";
 
 ChartJS.register(
   BarElement,
@@ -58,6 +59,7 @@ function Profiles() {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
+        setLoading(true);
         const config = {
           withCredentials: true,
           headesr: { "Content-Type": "application/json" },
@@ -70,6 +72,8 @@ function Profiles() {
         setUserData(user.data.user);
       } catch (error) {
         console.log(error);
+      }finally{
+        setLoading(false);
       }
     };
     fetchUserDetails();
@@ -210,6 +214,7 @@ function Profiles() {
     },
     animation: { duration: 1000, easing: "easeOutQuart" },
   };
+  if(loading)return (<Loader></Loader>)
   return (
     <Box sx={{ height: "100vh" }}>
       <Box>
