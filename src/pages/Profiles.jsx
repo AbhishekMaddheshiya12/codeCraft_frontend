@@ -74,7 +74,7 @@ function Profiles() {
     };
     fetchUserDetails();
   }, []);
-  const dateStr = userData.createdAt;
+  const dateStr = userData?.createdAt;
   const date = new Date(dateStr);
   const formattedDate = date.toLocaleDateString();
   const handleAvatar = async (e) => {
