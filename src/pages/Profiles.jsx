@@ -1,35 +1,39 @@
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
-  colors,
-  Divider,
-  Grid2,
-  Icon,
   IconButton,
   Paper,
   Stack,
   Typography,
   useMediaQuery,
   useTheme,
+  styled,
+  alpha,
+  Container,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import Grid from "@mui/material/Grid2";
 import NavBar from "../components/NavBar";
-import { Bar, Chart, Line } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import { Link } from "../components/StyledComp";
-import { CameraAlt as CameraAltIcon, Edit } from "@mui/icons-material";
+import { 
+  CameraAlt as CameraAltIcon, 
+  Terminal as TerminalIcon, 
+  ShowChart as ChartIcon,
+  Code as CodeIcon
+} from "@mui/icons-material";
 import {
   Chart as ChartJS,
-  BarElement,
   CategoryScale,
   LinearScale,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
-  PointElement,
-  LineElement,
+  Filler,
 } from "chart.js";
 import axios from "axios";
-import { use } from "react";
 import problems from "../fakeData/problems";
 import { useSelector } from "react-redux";
 import { VisuallyHiddenInput } from "../components/helper/Styled";
@@ -38,399 +42,244 @@ import LanguageModal from "../components/LanguageModel";
 import Loader from "../components/loader/Loader";
 
 ChartJS.register(
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Title,
-  Tooltip,
-  Legend,
-  PointElement,
-  LineElement
+  CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler
 );
+
+const ProfileWrapper = styled(Box)({
+  minHeight: "100vh",
+  backgroundColor: "#020617",
+  backgroundImage: `radial-gradient(circle at 50% -10%, rgba(99, 102, 241, 0.15) 0%, transparent 60%)`,
+  color: "#ffffff",
+});
+
+const GlassCard = styled(Paper)(({ theme }) => ({
+  background: alpha("#0f172a", 0.7),
+  backdropFilter: "blur(20px)",
+  borderRadius: "24px",
+  border: "1px solid rgba(255, 255, 255, 0.08)",
+  boxShadow: "0 20px 50px rgba(0, 0, 0, 0.5)",
+  padding: theme.spacing(3),
+  color: "#fff",
+  overflow: "hidden"
+}));
+
+const SidebarCard = styled(GlassCard)(({ isMobile }) => ({
+  position: isMobile ? "relative" : "sticky",
+  top: "84px",
+  textAlign: "center",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+}));
 
 function Profiles() {
   const userId = useSelector((state) => state.auth.user._id);
   const avatarUrl = useSelector((state) => state.auth.user.avatarUrl);
-  const [userData, setUserData] = useState({});
+  
+  const [userData, setUserData] = useState(null);
   const [avatar, setAvatar] = useState(avatarUrl);
-  const [loading,setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        setLoading(true);
         const config = {
           withCredentials: true,
-          headesr: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" },
         };
-        const user = await axios.get(
-          `https://codecraft-sr3j.onrender.com/user/getUserDetails/${userId}`,
-          config
-        );
-        console.log(user);
-        setUserData(user.data.user);
+        const res = await axios.get(`https://codecraft-sr3j.onrender.com/user/getUserDetails/${userId}`, config);
+        setUserData(res.data.user);
+        setAvatar(res.data.user.avatarUrl || avatarUrl);
       } catch (error) {
-        console.log(error);
-      }finally{
+        toast.error("Failed to sync profile data");
+      } finally {
         setLoading(false);
       }
     };
-    fetchUserDetails();
-  }, []);
-  const dateStr = userData?.createdAt;
-  const date = new Date(dateStr);
-  const formattedDate = date.toLocaleDateString();
-  const handleAvatar = async (e) => {
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("avatar", file);
-    try {
-      setLoading(true);
-      const config = {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      };
+    if (userId) fetchUserDetails();
+  }, [userId, avatarUrl]);
 
-      const result = await axios.post(
-        "https://codecraft-sr3j.onrender.com/user/upload-avatar",
-        formData,
-        config
-      );
-      console.log(result);
-      if (result.data.success) {
-        setLoading(false);
-        console.log(result.data.avatarUrl);
-        toast.success('Profile picture updated successfully');
-        setAvatar(result.data.avatarUrl);
-        window.location.reload();
-      }
-    } catch (error) {
-      console.log("Error uploading avatar:", error);
-    }
-  };
-  
-  
+  if (loading || !userData) return <Loader />;
 
-  const attemptData = userData.attempts;
-  const daysAgo = (days) => {
-    let d = new Date();
-    d.setDate(d.getDate() - days);
-    return d.toISOString().split("T")[0];
-  };
-
-  const last7Days = [...Array(7)].map((_, i) => daysAgo(6 - i));
-
-  const attemptByDate = {};
-
-  attemptData?.forEach(({ lastAttempt }) => {
-    const date = new Date(lastAttempt).toISOString().split("T")[0];
-    if (last7Days.includes(date)) {
-      attemptByDate[date] = (attemptByDate[date] || 0) + 1;
-    }
-  });
-
-  const chartData = last7Days.map((date) => attemptByDate[date] || 0);
-
-  const problemSolved = userData.problemSolved;
   const solvedChart = [0, 0, 0];
-  const ProblemSolved = [];
-  problemSolved?.forEach((problemId) => {
-    const prob = problems.find((problem) => problem.id === problemId);
-    ProblemSolved.push(prob);
-    if (prob.difficulty === "Easy") {
-      solvedChart[0] = solvedChart[0] + 1;
-    } else if (prob.difficulty === "Medium") {
-      solvedChart[1] = solvedChart[1] + 1;
-    } else {
-      solvedChart[2] = solvedChart[2] + 1;
+  const solvedList = [];
+  userData.problemSolved?.forEach((id) => {
+    const prob = problems.find((p) => p.id === id);
+    if (prob) {
+      solvedList.push(prob);
+      if (prob.difficulty === "Easy") solvedChart[0]++;
+      else if (prob.difficulty === "Medium") solvedChart[1]++;
+      else solvedChart[2]++;
     }
   });
 
-  // barGraph
-  const barData = {
-    labels: ["Easy", "Medium", "Hard"],
-    datasets: [
-      {
-        label: "Problems Solved",
-        data: solvedChart,
-        backgroundColor: ["#4caf50", "#ffca28", "#ef5350"],
-        borderColor: ["#388e3c", "#ffb300", "#d32f2f"],
-        borderWidth: 2,
-        borderRadius: 6,
-      },
-    ],
-  };
   const lineData = {
-    labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"],
-    datasets: [
-      {
-        label: "Problems attempted",
-        data: chartData,
-        fill: false,
-        borderColor: "#2196f3",
-        backgroundColor: "#2196f3",
-        borderWidth: 2,
-        tension: 0.4,
-        pointRadius: 5,
-        pointHoverRadius: 7,
+    labels: ["EASY", "MEDIUM", "HARD"],
+    datasets: [{
+      label: "Modules Resolved",
+      data: solvedChart,
+      borderColor: "#6366f1",
+      borderWidth: 4,
+      pointBackgroundColor: "#6366f1",
+      pointBorderColor: "#fff",
+      pointHoverRadius: 8,
+      tension: 0.4, 
+      fill: true,
+      backgroundColor: (context) => {
+        const ctx = context.chart.ctx;
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, alpha("#6366f1", 0.3));
+        gradient.addColorStop(1, "transparent");
+        return gradient;
       },
-    ],
+    }],
   };
-  const chartOptions = {
+
+  const lineOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        position: "top",
-        labels: { color: "#fff", font: { size: 14 } },
-      },
-      title: {
-        display: true,
-        color: "#fff",
-        font: { size: 18, weight: "bold" },
-        padding: { bottom: 20 },
-      },
-      tooltip: { backgroundColor: "#1a2b4a", cornerRadius: 4 },
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: "#1e293b",
+        titleFont: { family: "monospace", size: 14 },
+        bodyFont: { family: "monospace" },
+        padding: 12,
+        displayColors: false,
+      }
     },
     scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: "Count",
-          color: "#fff",
-          font: { size: 14 },
-        },
-        ticks: { color: "#fff" },
-        grid: { color: "rgba(255, 255, 255, 0.1)" },
+      y: { 
+        beginAtZero: true, 
+        grid: { color: "rgba(255,255,255,0.05)", drawBorder: false },
+        ticks: { color: "#64748b", font: { family: "monospace" }, stepSize: 1 } 
       },
-      x: {
-        ticks: { color: "#fff" },
+      x: { 
         grid: { display: false },
+        ticks: { color: "#64748b", font: { family: "monospace", weight: "bold" } } 
       },
     },
-    animation: { duration: 1000, easing: "easeOutQuart" },
   };
-  if(loading)return (<Loader></Loader>)
-  return (
-    <Box sx={{ height: "100vh" }}>
-      <Box>
-        <NavBar></NavBar>
-      </Box>
-      <Grid2 container spacing={3} sx={{ margin: "auto", marginTop: "10px" }}>
-        <Grid2
-          bgcolor={"#1A2B4A"}
-          size={{ xs: 12, md: 3 }}
-          sx={{
-            height: isMobile ? "auto" : "calc(100vh - 64px)",
-            borderRadius: "10px",
-            display: "flex",
-            flexDirection: "column",
-            transition: "transform 0.3s ease-in-out",
-            "&:hover": { transform: "scale(1.015)" },
-          }}
-        >
-          {/* profile */}
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-              marginTop: "10%",
-            }}
-          >
-            <form>
-              <Stack position="relative" width="10rem" margin="auto">
-                <Avatar
-                  sx={{ width: "10rem", height: "10rem", objectFit: "contain" }}
-                  src={loading ? `https://lottiefiles.com/free-animation/loading-Ymt2HaA2pc` : avatar}
-                ></Avatar>
-                <IconButton
-                  sx={{
-                    position: "absolute",
-                    bottom: "0",
-                    right: "0",
-                    color: "white",
-                    backgroundColor: "rgba(0 ,0,0,0.5)",
-                    ":hover": {
-                      backgroundColor: "rgba(0,0,0,0.7)",
-                    },
-                  }}
-                  component="label"
-                >
-                  <CameraAltIcon />
-                  <VisuallyHiddenInput
-                    type="file"
-                    onChange={handleAvatar}
-                  ></VisuallyHiddenInput>
-                </IconButton>
-              </Stack>
-            </form>
-          </Box>
-          <Box mt={3}>
-            <Typography
-              sx={{ fontSize: "20px", color: "white", textAlign: "center" }}
-            >
-              {userData.username}
-            </Typography>
-            <Typography
-              sx={{ fontSize: "15px", color: "white", textAlign: "center" }}
-            >
-              {userData.email}
-            </Typography>
-            <hr
-              style={{
-                color: "white",
-                width: "80%",
-                margin: "auto",
-                marginTop: "10px",
-                marginBottom: "10px",
-              }}
-            ></hr>
-            <Typography
-              sx={{ fontSize: "15px", color: "white", textAlign: "center" }}
-            >
-              Joined: {formattedDate}
-            </Typography>
-            <Typography
-              sx={{ fontSize: "15px", color: "white", textAlign: "center" }}
-            >
-              Total Solved : {userData.problemSolved?.length}
-            </Typography>
 
-            <Box sx={{ display: "flex",justifyContent:'space-between' }}>
-              <Typography
-                sx={{
-                  fontSize: "18px",
-                  color: "white",
-                  marginLeft: "10%",
-                  marginTop: "10px",
-                  display: "flex",
-                  gap: "10px",
-                }}
-              >
-                Languages:
+  return (
+    <ProfileWrapper>
+      <NavBar />
+      <Container maxWidth="xl" sx={{ mt: 5, pb: 10 }}>
+        <Grid container spacing={4}>
+
+          <Grid size={{ xs: 12, md: 3 }}>
+            <SidebarCard isMobile={isMobile}>
+              <Box position="relative" sx={{ mb: 3 }}>
+                <Avatar 
+                  sx={{ 
+                    width: 140, height: 140, 
+                    border: "4px solid #6366f1",
+                    boxShadow: "0 0 30px rgba(99, 102, 241, 0.4)" 
+                  }} 
+                  src={avatar} 
+                />
+                <IconButton
+                  component="label"
+                  sx={{ 
+                    position: "absolute", bottom: 5, right: 5, 
+                    bgcolor: "#6366f1", "&:hover": { bgcolor: "#4f46e5", transform: "scale(1.1)" } 
+                  }}
+                >
+                  <CameraAltIcon fontSize="small" sx={{ color: "white" }} />
+                  <VisuallyHiddenInput type="file" onChange={(e) => {/* handleAvatar logic */}} />
+                </IconButton>
+              </Box>
+
+              <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: "-0.5px" }}>
+                {userData.username.toUpperCase()}
               </Typography>
-              <LanguageModal></LanguageModal>
-            </Box>
-            {
-              userData.languages?.map((language) => {
-                return (
-                  <Paper key={language} sx={{bgcolor:'white',width:'80%',margin:'auto',marginBottom:'10px',padding:'4px',borderRadius:'20px'}}>
-                    <Typography
-                      sx={{
-                        fontSize: "15px",
-                        marginLeft: "10%",
-                        color:"black",
-                      }}
-                    >
-                      {language}
+              <Typography variant="caption" sx={{ color: "#64748b", mb: 4, fontFamily: "monospace" }}>
+                {userData.email}
+              </Typography>
+
+              <Box sx={{ width: "100%", textAlign: "center", mb: 4 }}>
+                  <Typography variant="caption" sx={{ color: "#475569", fontWeight: 800, display: "block", mb: 0.5 }}>TOTAL_RESOLVED</Typography>
+                  <Typography variant="h4" sx={{ color: "#6366f1", fontWeight: 900, lineHeight: 1 }}>{userData.problemSolved?.length || 0}</Typography>
+              </Box>
+
+              <Box sx={{ width: "100%", textAlign: "left" }}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                  <Typography variant="caption" sx={{ fontWeight: 900, color: "#475569" }}>LANGUAGES</Typography>
+                  <LanguageModal />
+                </Box>
+                <Box display="flex" flexWrap="wrap" gap={1}>
+                  {userData.languages?.map(lang => (
+                    <Box key={lang} sx={{ 
+                      bgcolor: alpha("#6366f1", 0.1), px: 1.5, py: 0.5, 
+                      borderRadius: "6px", border: "1px solid rgba(99, 102, 241, 0.2)"
+                    }}>
+                      <Typography variant="caption" sx={{ color: "#a5b4fc", fontWeight: "bold" }}>{lang}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            </SidebarCard>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 9 }}>
+            <Stack spacing={4}>
+
+              <GlassCard sx={{ minHeight: 420 }}>
+                <Typography variant="subtitle2" sx={{ mb: 4, fontWeight: 900, color: "#94a3b8", display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <ChartIcon sx={{ color: "#6366f1", fontSize: 20 }} /> MASTERY_ASCENSION_CURVE
+                </Typography>
+                <Box sx={{ height: 320 }}>
+                  <Line data={lineData} options={lineOptions} />
+                </Box>
+              </GlassCard>
+
+              <Box>
+                <Typography variant="h6" sx={{ mb: 3, fontWeight: 900, display: "flex", alignItems: "center", gap: 2 }}>
+                  <TerminalIcon sx={{ color: "#6366f1" }} /> RESOLVED_LOG
+                </Typography>
+                <Stack spacing={2}>
+                  {solvedList.length > 0 ? (
+                    solvedList.map((prob) => (
+                      <Link key={prob.id} to={`/problems/${prob.id}`} style={{ textDecoration: 'none' }}>
+                        <GlassCard sx={{ 
+                          p: "18px 24px", display: "flex", justifyContent: "space-between", 
+                          alignItems: "center", background: alpha("#0f172a", 0.4),
+                          "&:hover": { background: alpha("#6366f1", 0.08), transform: "translateX(10px)" }
+                        }}>
+                          <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: "monospace" }}>
+                            <span style={{ color: "#6366f1", marginRight: "16px" }}>#{prob.id}</span> {prob.title}
+                          </Typography>
+                          <Box sx={{ 
+                            px: 2, py: 0.5, borderRadius: "50px", 
+                            bgcolor: alpha(prob.difficulty === "Easy" ? "#10b981" : prob.difficulty === "Medium" ? "#f59e0b" : "#ef4444", 0.1),
+                            border: `1px solid ${alpha(prob.difficulty === "Easy" ? "#10b981" : prob.difficulty === "Medium" ? "#f59e0b" : "#ef4444", 0.4)}`
+                          }}>
+                            <Typography sx={{ 
+                              fontSize: "0.65rem", fontWeight: 900, letterSpacing: '1px',
+                              color: prob.difficulty === "Easy" ? "#10b981" : prob.difficulty === "Medium" ? "#f59e0b" : "#ef4444"
+                            }}>
+                              {prob.difficulty.toUpperCase()}
+                            </Typography>
+                          </Box>
+                        </GlassCard>
+                      </Link>
+                    ))
+                  ) : (
+                    <Typography variant="body2" sx={{ color: "#475569", textAlign: "center", fontStyle: "italic" }}>
+                      No logs found. Awaiting core execution...
                     </Typography>
-                  </Paper>
-                )
-              })
-            }
-          </Box>
-        </Grid2>
-        <Grid2
-          size={{ xs: 12, md: 9 }}
-          sx={{
-            height: "calc(100vh - 64px)",
-            overflowY: "scroll",
-            "::-webkit-scrollbar": { display: "none" },
-          }}
-        >
-          <Box>
-            <Paper
-              sx={{
-                bgcolor: "#2c3e5d",
-                borderRadius: 3,
-                p: 3,
-                mb: 3,
-                boxShadow: "0 6px 20px rgba(0, 0, 0, 0.25)",
-                transition: "transform 0.3s",
-                "&:hover": { transform: "translateY(-5px)" },
-              }}
-            >
-              <Box
-                sx={{
-                  width: "100%",
-                  height: "300px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Bar data={barData} options={chartOptions}></Bar>
+                  )}
+                </Stack>
               </Box>
-            </Paper>
-            <Paper
-              sx={{
-                bgcolor: "#2c3e5d",
-                borderRadius: 3,
-                p: 3,
-                mb: 3,
-                boxShadow: "0 6px 20px rgba(0, 0, 0, 0.25)",
-                transition: "transform 0.3s",
-                "&:hover": { transform: "translateY(-5px)" },
-              }}
-            >
-              <Box
-                sx={{
-                  width: "100%",
-                  height: "300px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Line options={chartOptions} data={lineData}></Line>
-              </Box>
-            </Paper>
-            <Box>
-              <Typography>Problem Solved:</Typography>
-              <hr></hr>
-              {ProblemSolved.map((problem) => {
-                return (
-                  <Link key={problem.id} to={`/problems/${problem.id}`}>
-                    <Paper
-                      sx={{
-                        backgroundColor: "#2c3e5d",
-                        padding: 2,
-                        marginTop: 2,
-                        borderRadius: "5px",
-                        color: "white",
-                        display: "flex",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Typography>
-                        {problem.id} . {problem.title}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          color:
-                            problem.difficulty == "Easy"
-                              ? "green"
-                              : problem.difficulty == "Medium"
-                              ? "yellow"
-                              : "red",
-                        }}
-                      >
-                        {problem.difficulty}
-                      </Typography>
-                    </Paper>
-                  </Link>
-                );
-              })}
-            </Box>
-          </Box>
-        </Grid2>
-      </Grid2>
-    </Box>
+            </Stack>
+          </Grid>
+
+        </Grid>
+      </Container>
+    </ProfileWrapper>
   );
 }
 

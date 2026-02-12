@@ -1,156 +1,146 @@
-import { Avatar, Box, Paper, Typography } from "@mui/material";
+import { Avatar, Box, Paper, Typography, alpha, styled } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
-import { useDispatch, useSelector } from "react-redux";
+import { 
+  Chart as ChartJS, 
+  CategoryScale, 
+  LinearScale, 
+  BarElement, 
+  Title, 
+  Tooltip, 
+  Legend 
+} from "chart.js";
+import { useSelector } from "react-redux";
 import problems from "../fakeData/problems";
 import axios from "axios";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+const ProfileGlassPaper = styled(Box)(({ theme }) => ({
+  background: "transparent",
+  color: "#fff",
+  display: "flex",
+  flexDirection: "column",
+}));
+
 function Profile() {
   const userId = useSelector(state => state.auth.user._id);
   const avatarUrl = useSelector(state => state.auth.user.avatarUrl);
-  const [userData,setUserData] = useState({});
-    useEffect(() => {
-        const fetchUserDetails = async () => {
-          try{
-            const config = {
-              withCredentials: true,
-              header: { "Content-Type": "application/json" },
-            }
-            const user = await axios.get(`https://codecraft-sr3j.onrender.com/user/getUserDetails/${userId}`,config);
-            console.log(user);
-            setUserData(user.data.user);
-          }catch(error){
-            console.log(error);
-          }
-        }
-        fetchUserDetails();
-    },[])
+  const [userData, setUserData] = useState({});
 
-    const problemSolved = userData.problemSolved;
-    const solvedChart = [0,0,0]
-    const ProblemSolved = [];
-    problemSolved?.forEach((problemId) => {
-      const prob = problems.find((problem) => problem.id === problemId);
-      console.log(prob);
-      ProblemSolved.push(prob);
-      if(prob.difficulty === "Easy"){
-        solvedChart[0] = solvedChart[0] + 1;
-      }else if(prob.difficulty === "Medium"){
-        solvedChart[1] = solvedChart[1] + 1;
-      }else{
-        solvedChart[2] = solvedChart[2] + 1;
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const config = {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" }, 
+        };
+        const response = await axios.get(`https://codecraft-sr3j.onrender.com/user/getUserDetails/${userId}`, config);
+        setUserData(response.data.user);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
       }
-    })
+    };
+    if (userId) fetchUserDetails();
+  }, [userId]); 
 
-    console.log(solvedChart);
-
-    const barData = {
-      labels:["Easy","Medium","Hard"],
-      datasets:[{
-        label:"Problems Solved",
-        data:solvedChart,
-        backgroundColor:["#4caf50","#ffca28","#ef5350"],
-        borderColor:["#388e3c","#ffb300","#d32f2f"],
-        borderWidth:2,
-        borderRadius:6,
-      }]
+  const solvedChart = [0, 0, 0];
+  userData.problemSolved?.forEach((problemId) => {
+    const prob = problems.find((p) => p.id === problemId);
+    if (prob) {
+      if (prob.difficulty === "Easy") solvedChart[0]++;
+      else if (prob.difficulty === "Medium") solvedChart[1]++;
+      else solvedChart[2]++;
     }
+  });
+
+  const barData = {
+    labels: ["EASY", "MED", "HARD"],
+    datasets: [{
+      label: "Count",
+      data: solvedChart,
+      backgroundColor: [
+        alpha("#4ade80", 0.6),
+        alpha("#fbbf24", 0.6), 
+        alpha("#f87171", 0.6) 
+      ],
+      borderColor: ["#4ade80", "#fbbf24", "#f87171"],
+      borderWidth: 1,
+      borderRadius: 4,
+    }]
+  };
 
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        position: "top",
-        labels: {
-          color: "#fff",
-          font: { size: 14 },
-        },
-      },
+      legend: { display: false }, 
       title: {
         display: true,
-        text: "Problems Solved",
-        color: "#fff",
-        font: { size: 20, weight: "bold" },
-        padding: { bottom: 20 },
+        text: "ANALYTICS",
+        color: "#64748b",
+        font: { size: 10, weight: "800", family: "monospace" },
+        align: "start",
       },
       tooltip: {
-        backgroundColor: "#333",
-        titleFont: { size: 14 },
-        bodyFont: { size: 12 },
+        backgroundColor: "#0f172a",
+        titleFont: { family: "monospace" },
+        bodyFont: { family: "monospace" },
       },
     },
     scales: {
       y: {
         beginAtZero: true,
-        title: {
-          display: true,
-          text: "Count",
-          color: "#fff",
-          font: { size: 14 },
-        },
-        ticks: { color: "#fff" },
-        grid: { color: "rgba(255, 255, 255, 0.1)" },
+        ticks: { color: "#475569", font: { size: 10 } },
+        grid: { color: "rgba(255, 255, 255, 0.05)" },
       },
       x: {
-        ticks: { color: "#fff" },
+        ticks: { color: "#64748b", font: { size: 10, weight: "bold" } },
         grid: { display: false },
       },
     },
   };
 
   return (
-    <Paper
-      sx={{
-        mt: 2,
-        bgcolor: "#2c3e5d",
-        borderRadius: 2,
-        overflow: "hidden",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
-        transition: "transform 0.3s",
-        "&:hover": {
-          transform: "translateY(-5px)",
-          boxShadow: "0 8px 20px rgba(0, 0, 0, 0.3)",
-        },
-      }}
-    >
-      {/* Avatar Section */}
-      <Box
-        sx={{
-          bgcolor: "#1a2b4a",
-          p: 3,
-          textAlign: "center",
-        }}
-      >
+    <ProfileGlassPaper>
+      <Box sx={{ p: 3, textAlign: "center", borderBottom: "1px solid rgba(255, 255, 255, 0.05)" }}>
         <Avatar
-          sx={{
-            width: 100,
-            height: 100,
-            margin: "0 auto",
-            border: "3px solid #fff",
-            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.3)",
-          }}
           src={avatarUrl}
+          sx={{
+            width: 80,
+            height: 80,
+            margin: "0 auto",
+            border: "2px solid #6366f1",
+            boxShadow: "0 0 20px rgba(99, 102, 241, 0.3)",
+          }}
         />
-        <Typography variant="h6" color="#fff" sx={{ mt: 2 }}>
-          {userData.username}
+        <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 800, letterSpacing: "-0.5px" }}>
+          {userData.username || "GUEST_USER"}
         </Typography>
-        <Typography variant="body2" color="rgba(255, 255, 255, 0.7)">
+        <Typography variant="caption" sx={{ color: "#64748b", display: "block", mb: 1 }}>
           {userData.email}
         </Typography>
       </Box>
 
-      {/* Chart Section */}
-      <Box sx={{ p: 3 }}>
-        <Box sx={{ height: "50vh" }}>
+      <Box sx={{ p: 2 }}>
+        <Box sx={{ height: "180px", width: "100%" }}>
           <Bar data={barData} options={chartOptions} />
         </Box>
+
+        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-around' }}>
+            <StatBox label="TOTAL" value={userData.problemSolved?.length || 0} />
+            <StatBox label="RANK" value="#-- " />
+        </Box>
       </Box>
-    </Paper>
+    </ProfileGlassPaper>
   );
 }
+
+const StatBox = ({ label, value }) => (
+    <Box sx={{ textAlign: 'center' }}>
+        <Typography variant="caption" sx={{ color: '#475569', fontWeight: 800, display: 'block' }}>{label}</Typography>
+        <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#6366f1' }}>{value}</Typography>
+    </Box>
+);
 
 export default Profile;

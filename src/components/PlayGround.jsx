@@ -2,354 +2,288 @@ import React, { useState, useEffect } from "react";
 import NewNav from "./NewNav";
 import Split from "react-split";
 import "../components/split.css";
-import { Box, Button, Paper, Typography } from "@mui/material";
+import { Box, Button, Paper, Typography, alpha, styled } from "@mui/material";
 import Editor, { useMonaco } from "@monaco-editor/react";
 import axios from "axios";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import TaskAltRoundedIcon from "@mui/icons-material/TaskAltRounded";
 import { useParams } from "react-router";
 import { useSelector } from "react-redux";
-import Loader from "./loader/Loader";
 import toast from "react-hot-toast";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { atomOneLight } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import SubmitAnimation from "./loader/SubmitAnimation";
+
+const PlayGroundContainer = styled(Box)({
+  display: "flex",
+  flexDirection: "column",
+  height: "calc(100vh - 64px)", 
+  backgroundColor: "#020617",
+  overflow: "hidden",
+});
+
+const ActionButton = styled(Button)({
+  backgroundColor: alpha("#1e293b", 0.8),
+  color: "#fff",
+  padding: "6px 20px",
+  fontWeight: 700,
+  borderRadius: "8px",
+  fontSize: "0.8rem",
+  textTransform: "none",
+  border: "1px solid rgba(255, 255, 255, 0.05)",
+  "&:hover": {
+    backgroundColor: "#6366f1",
+    boxShadow: "0 0 15px rgba(99, 102, 241, 0.3)",
+  },
+});
+
+const ConsoleBox = styled(Box)({
+  height: "100%",
+  backgroundColor: "#020617",
+  color: "white",
+  padding: "16px",
+  overflowY: "auto",
+  overflowX: "hidden",
+  scrollbarWidth: "none", 
+  "&::-webkit-scrollbar": { display: "none" },
+  msOverflowStyle: "none",
+});
 
 function PlayGround({ tesTCases }) {
   const { problemId } = useParams();
-
   const userId = useSelector((state) => state.auth.user._id);
+  const monaco = useMonaco();
 
-  const [language, setLanguage] = useState(() => {
-    const savedLanguage = localStorage.getItem("selectedLanguage");
-    return savedLanguage || "javascript";
-  });
+  const codeKey = `code_${problemId}`;
+  const langKey = `selectedLanguage_${problemId}`;
 
-  const [code, setCode] = useState(() => {
-    const savedCode = localStorage.getItem("code");
-    return savedCode || "";
-  });
-  const [failed, setFailed] = useState(false);
+  const [language, setLanguage] = useState(() => localStorage.getItem(langKey) || "javascript");
+  const [code, setCode] = useState(() => localStorage.getItem(codeKey) || "");
   const [testCases, setTestCases] = useState(tesTCases);
   const [story, setStory] = useState(null);
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
 
-  console.log(testCases);
-
-  const monaco = useMonaco();
+  const language_id = { c: 1, cpp: 2, javascript: 9, java: 3, python: 4 };
 
   useEffect(() => {
-    localStorage.setItem("selectedLanguage", language);
-  }, [language]);
+    const savedCode = localStorage.getItem(codeKey);
+    const savedLang = localStorage.getItem(langKey);
+    
+    setCode(savedCode || "");
+    setLanguage(savedLang || "javascript");
+    setStory(null);
+    setResponse(null);
+    setTestCases(tesTCases);
+  }, [problemId, codeKey, langKey, tesTCases]);
 
   useEffect(() => {
     if (monaco) {
-      console.log("Monaco instance loaded:", monaco);
-
-      monaco.editor.defineTheme("custom-light", {
-        base: "vs",
+      monaco.editor.defineTheme("codecraft-dark", {
+        base: "vs-dark",
         inherit: true,
-        rules: [
-          { token: "comment", foreground: "888888", fontStyle: "italic" },
-          { token: "keyword", foreground: "ff9d00" },
-        ],
+        rules: [],
         colors: {
-          "editor.background": "#121212",
-          "editor.foreground": "#ffffff",
-          "editor.lineHighlightBackground": "#2a2a2a",
+          "editor.background": "#0f172a", 
+          "editor.lineHighlightBackground": "#1e293b",
         },
       });
-
-      monaco.editor.setTheme("custom-dark");
+      monaco.editor.setTheme("codecraft-dark");
     }
   }, [monaco]);
 
-  const handleEditorDidMount = (editor, monacoInstance) => {
-    console.log("Editor Mounted:", editor);
-  };
+  useEffect(() => {
+    localStorage.setItem(langKey, language);
+  }, [language, langKey]);
 
   const handleCodeChange = (value) => {
     setCode(value);
-    localStorage.setItem("code", value);
+    localStorage.setItem(codeKey, value);
   };
 
-  const language_id = {
-    c: 1,
-    cpp: 2,
-    javascript: 9,
-    java: 3,
-    python: 4,
-  };
-
-  const encodeBase64 = (str) => {
-    return btoa(
-      new TextEncoder()
-        .encode(str)
-        .reduce((data, byte) => data + String.fromCharCode(byte), "")
-    );
-  };
-
-  const base64EncodedCode = encodeBase64(code);
-
-  useEffect(() => {
-    setFailed(false);
-  }, [code]);
-
-  const data = {
-    language_id: language_id[language],
-    base64EncodedCode: base64EncodedCode,
-    problemId: problemId,
-  };
+  const encodeBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 
   const handleRunCode = async () => {
-    const config = {
-      withCredentials: true,
-      header: { "Content-Type": "application/json" },
-    };
+    setLoading(true);
     try {
-      setLoading(true);
-      const res = await axios.post(
-        "https://codecraft-sr3j.onrender.com/user/getSubmission",
-        data,
-        config
-      );
-      console.log(res);
-      const { updatedTestCases, results, hasFailure, failureStatus } = res.data;
-
-      setTestCases(updatedTestCases);
-      setFailed(hasFailure);
-      setStory(failureStatus);
-      setLoading(false);
-
-      return results;
+      const config = { withCredentials: true, headers: { "Content-Type": "application/json" } };
+      const data = { 
+        language_id: language_id[language], 
+        base64EncodedCode: encodeBase64(code), 
+        problemId: problemId 
+      };
+      
+      const res = await axios.post("https://codecraft-sr3j.onrender.com/user/getSubmission", data, config);
+      setTestCases(res.data.updatedTestCases);
+      setStory(res.data.failureStatus);
+      return res.data.results;
     } catch (error) {
-      console.log(error);
+      toast.error("Execution Protocol Failed");
+    } finally {
       setLoading(false);
     }
   };
 
   const setAttempt = async () => {
+    const results = await handleRunCode();
+    if (!results) return;
+
+    let finalStory = "Accepted";
+    results.forEach((res) => {
+      if (res.status !== "Accepted") finalStory = res.status;
+    });
+
     try {
-      setLoading(true);
-      const finalResult = await handleRunCode();
-      console.log(finalResult);
-      let story = "Accepted";
-      finalResult.some((result) => {
-        if (result.status !== "Accepted") {
-          story = result.status;
-        }
-      });
-      console.log("Story after handleRunCode:", story);
-
-      const config = {
-        withCredentials: true,
-        header: { "Content-Type": "application/json" },
-      };
-
-      const { data } = await axios.post(
+      await axios.post(
         "https://codecraft-sr3j.onrender.com/user/judge0-callback",
-        { story, problemId, userId },
-        config
+        { story: finalStory, problemId, userId },
+        { withCredentials: true, headers: { "Content-Type": "application/json" } }
       );
-      console.log(data);
-      setLoading(false);
+      toast.success(`SYSTEM: ${finalStory}`);
     } catch (error) {
-      console.log(error);
-      setLoading(false);
+      console.error(error);
     }
   };
+
   const handleAnalyze = async () => {
+    setLoading(true);
     try {
-      const config = {
-        withCredentials: true,
-        header: { "Content-Type": "application/json" },
-      };
-      setLoading(true);
-      const response = await axios.post(
-        `https://codecraft-sr3j.onrender.com/problems/analyze`,
-        { code },
-        config
-      );
-      console.log(response.data.analysis);
-      setResponse(response.data.analysis);
-      toast.success(response.data.message);
-      setLoading(false);
+      const res = await axios.post(`https://codecraft-sr3j.onrender.com/problems/analyze`, { code }, { withCredentials: true });
+      setResponse(res.data.analysis);
+      toast.success("AI Analysis Complete");
     } catch (error) {
-      toast.error(error.response.data.message);
-      console.log(error);
+      toast.error("AI Protocol Error");
+    } finally {
       setLoading(false);
     }
   };
 
   const getColor = (status) => {
-    switch (status) {
-      case "Accepted":
-        return "green";
-      case "Wrong Answer":
-        return "red";
-      case "Processing":
-        return "yellow";
-      case "Runtime Error":
-        return "red";
-      case "Time Limit Exceeded":
-        return "red";
-      case "Memory Limit Exceeded":
-        return "red";
-      default:
-        return "grey";
-    }
+    if (status === "Accepted") return "#4ade80";
+    if (["Wrong Answer", "Runtime Error", "Time Limit Exceeded"].includes(status)) return "#f87171";
+    return "#64748b";
   };
 
-  const firstThree = testCases?.slice(0, 3);
-  console.log(firstThree);
-
-  // const handleEditorDidMount = (editor, monacoInstance) => {
-  //   console.log("Editor Mounted:", editor);
-  // };
-
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        position: "relative",
-        backgroundColor: "",
-        height: `calc(100vh - 64px)`,
-      }}
-    >
+    <PlayGroundContainer>
       <NewNav setLanguage={setLanguage} language={language} />
-      <Box sx={{ display: "flex", justifyContent: "space-evenly" }}>
-        <Button
-          sx={{
-            backgroundColor: "#2c3e5d",
-            px: 3,
-            marginBottom: 2,
-            color: "white",
-          }}
-          onClick={handleRunCode}
-        >
-          Run Code
-        </Button>
-        <Button
-          sx={{
-            backgroundColor: "#2c3e5d",
-            px: 3,
-            marginBottom: 2,
-            color: "white",
-          }}
-          onClick={setAttempt}
-        >
+      
+      <Box sx={{ 
+        display: "flex", 
+        justifyContent: "flex-end", 
+        gap: 2, 
+        p: 1.5, 
+        px: 3, 
+        borderBottom: "1px solid rgba(255,255,255,0.05)",
+        bgcolor: alpha("#0f172a", 0.4)
+      }}>
+        <ActionButton onClick={handleRunCode}>Run Code</ActionButton>
+        <ActionButton sx={{ bgcolor: "#6366f1", "&:hover": { bgcolor: "#4f46e5" } }} onClick={setAttempt}>
           Submit
-        </Button>
+        </ActionButton>
       </Box>
 
-      <Split
-        style={{ height: `calc(100vh)` }}
-        direction="vertical"
-        sizes={[60, 40]}
+      <Split 
+        className="split-vertical"
+        direction="vertical" 
+        sizes={[65, 35]} 
+        minSize={100}
+        gutterSize={8}
+        style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
       >
-        <Box sx={{ width: "100%", height: "60%" }}>
+        <Box sx={{ width: "100%", overflow: "hidden" }}>
           <Editor
             height="100%"
             language={language}
-            defaultValue={code == "" ? "// Write your code here..." : code}
-            onMount={handleEditorDidMount}
-            theme="custom-dark"
+            value={code}
+            theme="codecraft-dark"
             onChange={handleCodeChange}
+            options={{
+              fontSize: 14,
+              minimap: { enabled: false },
+              automaticLayout: true,
+              padding: { top: 16 }
+            }}
           />
         </Box>
-        <Box
-          sx={{
-            height: "40%",
-            color: "white",
-            padding: "10px",
-            borderRadius: 5,
-          }}
-        >
-          <Paper
-            sx={{
-              backgroundColor: "#2c3e5d",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              px: 2,
-            }}
-          >
+
+        <ConsoleBox>
+          <Paper sx={{ 
+            bgcolor: alpha("#1e293b", 0.4), 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "space-between", 
+            p: 1.5, mb: 3, borderRadius: "12px",
+            border: "1px solid rgba(255,255,255,0.05)"
+          }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <CheckBoxIcon sx={{ color: "white" }} />
-              <Typography fontWeight={400} color="white" fontSize="1.2rem">
-                Testcases:
+              <CheckBoxIcon sx={{ color: "#6366f1", fontSize: 20 }} />
+              <Typography sx={{ fontWeight: 800, fontSize: "0.75rem", color: "#94a3b8", fontFamily: "monospace" }}>
+                TERMINAL_LOGS
               </Typography>
             </Box>
 
-            {story == "Accepted" && (
-              <Button
-                sx={{
-                  backgroundColor: "black",
-                  color: "white",
-                  px: 3,
-                  "&:hover": {
-                    backgroundColor: "#111",
-                  },
-                  fontWeight: "bold",
-                  borderRadius: 5,
-                }}
+            {story === "Accepted" && (
+              <Button 
+                size="small"
                 onClick={handleAnalyze}
+                sx={{ color: "#4ade80", fontSize: "0.7rem", fontWeight: 900, fontFamily: "monospace" }}
               >
-                Analyze
+                {">"} ANALYZE_AI
               </Button>
             )}
           </Paper>
 
           {loading ? (
-            <SubmitAnimation />
+            <Box sx={{ height: "100px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <SubmitAnimation />
+            </Box>
           ) : (
             <Box>
-              <Box display={"flex"} gap={3} mt={3}>
-                {firstThree?.map((test) => (
-                  <Box
-                    key={test.id ? test.id : test?._doc?.id}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      color: getColor(test.status),
-                    }}
-                  >
-                    <TaskAltRoundedIcon />
-                    <Typography>{`Case ${
-                      test.id ? test.id : test?._doc?.id
-                    }`}</Typography>
+              <Box display="flex" flexWrap="wrap" gap={3} mb={3}>
+                {testCases?.slice(0, 3).map((test, i) => (
+                  <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1, color: getColor(test.status) }}>
+                    <TaskAltRoundedIcon sx={{ fontSize: 18 }} />
+                    <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: "monospace" }}>
+                      Case_{test.id || i + 1}
+                    </Typography>
                   </Box>
                 ))}
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography sx={{ color: getColor(story) }}>
-                    {story}
+                {story && (
+                  <Typography sx={{ 
+                    color: getColor(story), 
+                    fontWeight: 900, 
+                    ml: "auto", 
+                    fontFamily: "monospace",
+                    bgcolor: alpha(getColor(story), 0.1),
+                    px: 1.5, borderRadius: "4px"
+                  }}>
+                    STATUS: {story.toUpperCase()}
                   </Typography>
-                </Box>
+                )}
               </Box>
-              <SyntaxHighlighter
-                language="cpp"
-                style={atomOneLight}
-                showLineNumbers
-                // wrapLongLines
-                customStyle={{
-                  maxHeight: "300px",
-                  overflowX: "auto", 
-                  overflowY: "auto",
-                  scrollbarWidth: "none", 
-                  msOverflowStyle: "none",
-                }}
-                className="hide-scrollbar"
-              >
-                {response}
-              </SyntaxHighlighter>
+
+              {response && (
+                <Box sx={{ mt: 2, borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
+                   <SyntaxHighlighter
+                    language="markdown"
+                    style={atomOneDark}
+                    customStyle={{
+                      padding: "20px",
+                      fontSize: "12px",
+                      backgroundColor: alpha("#0f172a", 0.5),
+                      scrollbarWidth: "none",
+                    }}
+                  >
+                    {response}
+                  </SyntaxHighlighter>
+                </Box>
+              )}
             </Box>
           )}
-        </Box>
+        </ConsoleBox>
       </Split>
-    </div>
+    </PlayGroundContainer>
   );
 }
 

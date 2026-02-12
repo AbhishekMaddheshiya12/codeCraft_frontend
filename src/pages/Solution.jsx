@@ -4,47 +4,64 @@ import PlayGround from "../components/PlayGround";
 import Split from "react-split";
 import "../components/split.css";
 import NavBar from "../components/NavBar";
-import { Box, useMediaQuery, useTheme } from "@mui/material";
+import { Box, useMediaQuery, useTheme, styled } from "@mui/material";
 import { useParams } from "react-router";
-import problems from "../fakeData/problems.js";
 import Submission from "../components/Submission.jsx";
 import axios from "axios";
 import Loader from "../components/loader/Loader.jsx";
 
+const SolutionWrapper = styled(Box)({
+  backgroundColor: "#020617",
+  height: "100vh",
+  display: "flex",
+  flexDirection: "column",
+  overflow: "hidden",
+});
+
+const PaneContainer = styled("div")({
+  height: "100%",
+  overflow: "hidden",
+});
+
 function Solution() {
   const { problemId } = useParams();
   const [isSubmission, setIsSubmission] = useState(false);
-  const [problemdata, setProblemData] = useState(null); // ← initialize as null
+  const [problemdata, setProblemData] = useState(null);
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md")); // Changed to 'md' to match Home/Profile breakpoint
 
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await axios.get(`https://codecraft-sr3j.onrender.com/problems/${problemId}`);
+        const response = await axios.get(
+          `https://codecraft-sr3j.onrender.com/problems/${problemId}`,
+        );
         setProblemData(response?.data?.problem[0]);
-        console.log(response.data.problem[0]);
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching problem data:", error);
       }
     };
 
     getData();
   }, [problemId]);
 
-  // Show loading UI until data is fetched
   if (!problemdata) {
-    return <Box><Loader/></Box>;
+    return (
+      <SolutionWrapper sx={{ justifyContent: "center", alignItems: "center" }}>
+        <Loader />
+      </SolutionWrapper>
+    );
   }
 
   const tesTCases = problemdata.testCases;
 
   return (
-    <Box>
+    <SolutionWrapper>
       <NavBar />
+
       {isMobile ? (
-        <div className="pane">
+        <PaneContainer>
           {isSubmission ? (
             <Submission
               problemId={problemId}
@@ -56,17 +73,18 @@ function Solution() {
               setIsSubmission={setIsSubmission}
             />
           )}
-        </div>
+        </PaneContainer>
       ) : (
         <Split
           className="split"
-          sizes={isMobile ? [100, 0] : [50, 50]}
-          minSize={200}
-          gutterSize={10}
+          sizes={[45, 55]}
+          minSize={300}
+          gutterSize={8}
           direction="horizontal"
           cursor="col-resize"
+          style={{ height: "calc(100vh - 64px)", display: "flex" }}
         >
-          <div className="pane">
+          <PaneContainer>
             {isSubmission ? (
               <Submission
                 problemId={problemId}
@@ -78,13 +96,14 @@ function Solution() {
                 setIsSubmission={setIsSubmission}
               />
             )}
-          </div>
-          <div className="pane">
+          </PaneContainer>
+
+          <PaneContainer>
             <PlayGround tesTCases={tesTCases} problemId={problemId} />
-          </div>
+          </PaneContainer>
         </Split>
       )}
-    </Box>
+    </SolutionWrapper>
   );
 }
 

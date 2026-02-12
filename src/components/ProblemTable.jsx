@@ -2,22 +2,32 @@ import React, { useEffect, useState } from "react";
 import CheckIcon from "@mui/icons-material/Check";
 import { green, red, yellow } from "@mui/material/colors";
 import YouTubeIcon from "@mui/icons-material/YouTube";
+import { TableRow, TableCell, Box, Skeleton, alpha, styled } from "@mui/material";
 import { Link } from "./StyledComp.jsx";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import Loader from "./loader/Loader.jsx";
-import { Box } from "@mui/material";
-import SubmitAnimation from "./loader/SubmitAnimation.jsx";
+
+const StyledRow = styled(TableRow)(({ theme }) => ({
+  transition: "all 0.2s ease",
+  "&:hover": {
+    backgroundColor: alpha("#6366f1", 0.08),
+    cursor: "pointer",
+  },
+  "& td": {
+    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+    color: "#e2e8f0",
+  },
+}));
 
 function ProblemTable() {
   const user = useSelector((state) => state.auth.user);
   const [problems, setProblems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        setIsLoading(true); // Set loading to true before fetching
+        setIsLoading(true);
         const config = {
           withCredentials: true,
           headers: { "Content-Type": "application/json" },
@@ -39,75 +49,78 @@ function ProblemTable() {
 
   if (isLoading || !user) {
     return (
-      <tbody style={{ backgroundColor: "#2C3E5D", borderRadius: "12px" }}>
-        <tr>
-          <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
-              <svg style={{margin:'auto',marginTop:'20px',background:'none',display:'block',shapeRendering:'auto'}} width="100" height="100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle fill="white" stroke="#2c3e5d" stroke-width="15" r="15" cx="40" cy="65"><animate attributeName="cy" calcMode="spline" dur="2" values="65;135;65;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="-.4"></animate></circle><circle fill="#2B2B2B" stroke="#2B2B2B" stroke-width="15" r="15" cx="100" cy="65"><animate attributeName="cy" calcMode="spline" dur="2" values="65;135;65;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="-.2"></animate></circle><circle fill="#2B2B2B" stroke="#2B2B2B" stroke-width="15" r="15" cx="160" cy="65"><animate attributeName="cy" calcMode="spline" dur="2" values="65;135;65;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="0"></animate></circle></svg>
-          </td>
-        </tr>
-      </tbody>
+      <>
+        {[...Array(8)].map((_, i) => (
+          <TableRow key={i}>
+            <TableCell colSpan={5}>
+              <Skeleton variant="text" sx={{ bgcolor: alpha("#fff", 0.05), height: 40 }} />
+            </TableCell>
+          </TableRow>
+        ))}
+      </>
     );
   }
 
   return (
-    <tbody style={{ backgroundColor: "#2C3E5D", borderRadius: "12px" }}>
+    <>
       {problems.length > 0 ? (
         problems.map((problem) => {
           const difficultyColor =
             problem.difficulty === "Easy"
-              ? green[500]
+              ? green[400]
               : problem.difficulty === "Medium"
               ? yellow[600]
-              : red[500];
+              : red[400];
 
           const isSolved = user?.problemSolved?.includes(String(problem.id));
 
           return (
-            <tr key={problem.id}>
-              <td style={{ padding: "9px", textAlign: "center" }}>
-                {isSolved && <CheckIcon sx={{ color: green[500] }} />}
-              </td>
-              <td style={{ paddingLeft: "12px", textAlign: "left" }}>
-                <Link sx={{ color: "white" }} to={`/problems/${problem.id}`}>
+            <StyledRow key={problem.id}>
+              <TableCell align="center">
+                {isSolved ? (
+                  <CheckIcon sx={{ color: green[500], fontSize: 20 }} />
+                ) : (
+                  <Box sx={{ width: 20, height: 20, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.1)" }} />
+                )}
+              </TableCell>
+              <TableCell>
+                <Link sx={{ color: "#fff", fontWeight: 500, textDecoration: "none" }} to={`/problems/${problem.id}`}>
                   {problem.id}. {problem.title}
                 </Link>
-              </td>
-              <td
-                style={{
-                  padding: "12px",
-                  textAlign: "center",
-                  color: difficultyColor,
-                }}
-              >
-                {problem.difficulty}
-              </td>
-              <td style={{ padding: "12px", textAlign: "center" }}>
+              </TableCell>
+
+              <TableCell align="center" sx={{ color: difficultyColor, fontWeight: 700, fontSize: "0.8rem" }}>
+                {problem.difficulty?.toUpperCase()}
+              </TableCell>
+
+              <TableCell align="center" sx={{ color: "#94a3b8", fontFamily: "monospace" }}>
                 {problem.category}
-              </td>
-              <td style={{ padding: "8px", textAlign: "center" }}>
+              </TableCell>
+
+              <TableCell align="right">
                 {problem.videoId === "" ? (
-                  "Coming Soon ..."
+                  <Typography variant="caption" sx={{ color: "#475569" }}>-</Typography>
                 ) : (
                   <a
                     href={`https://www.youtube.com/watch?v=${problem.videoId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <YouTubeIcon sx={{ color: "red" }} />
+                    <YouTubeIcon sx={{ color: "#ef4444", "&:hover": { transform: "scale(1.2)" }, transition: "0.2s" }} />
                   </a>
                 )}
-              </td>
-            </tr>
+              </TableCell>
+            </StyledRow>
           );
         })
       ) : (
-        <tr>
-          <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
-            No problems available.
-          </td>
-        </tr>
+        <TableRow>
+          <TableCell colSpan={5} align="center" sx={{ py: 4, color: "#64748b" }}>
+            No resources found in current library segment.
+          </TableCell>
+        </TableRow>
       )}
-    </tbody>
+    </>
   );
 }
 
