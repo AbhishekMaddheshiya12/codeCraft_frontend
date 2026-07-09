@@ -6,7 +6,6 @@ import {
   TextField,
   Typography,
   styled,
-  alpha,
   InputAdornment,
   CircularProgress,
 } from "@mui/material";
@@ -18,48 +17,13 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import LockIcon from "@mui/icons-material/Lock";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-
-const GlassPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(4),
-  background: alpha("#0f172a", 0.8),
-  backdropFilter: "blur(16px)",
-  borderRadius: "24px",
-  border: `1px solid ${alpha("#ffffff", 0.1)}`,
-  boxShadow: `0 20px 60px ${alpha("#000", 0.6)}`,
-  color: "#f8fafc",
-  width: "100%",
-  minHeight: "520px", 
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-}));
-
-const StyledTextField = styled(TextField)({
-  "& .MuiInputLabel-root": { color: "#94a3b8" },
-  "& .MuiInput-root": {
-    color: "#fff",
-    "&:before": { borderBottomColor: alpha("#fff", 0.2) },
-    "&:after": { borderBottomColor: "#6366f1" },
-  },
-  "& .MuiInput-input": {
-    fontFamily: "'Fira Code', monospace",
-    fontSize: "0.9rem",
-  },
-});
-
-const CyberButton = styled(Button)(({ theme }) => ({
-  background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
-  color: "#fff",
-  fontWeight: 800,
-  padding: "12px",
-  borderRadius: "12px",
-  textTransform: "none",
-  minHeight: "48px", 
-  "&:disabled": {
-    background: alpha("#6366f1", 0.3),
-    color: alpha("#fff", 0.5),
-  },
-}));
+import {
+  COLORS,
+  GlassPaper,
+  StyledTextField,
+  CyberButton,
+  AuthTextButton,
+} from "../styledComponents/AuthStyle.jsx";
 
 function Signup({ setIsLogin }) {
   const dispatch = useDispatch();
@@ -67,6 +31,7 @@ function Signup({ setIsLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -79,7 +44,7 @@ function Signup({ setIsLogin }) {
 
     try {
       const { data } = await axios.post(
-        "https://codecraft-sr3j.onrender.com/user/signup",
+        `${apiUrl}/user/signup`,
         { username: userName, email, password },
         config
       );
@@ -98,15 +63,29 @@ function Signup({ setIsLogin }) {
         <Box sx={{ textAlign: "center", mb: 4 }}>
           <Box sx={{ 
             display: "inline-flex", p: 1.5, borderRadius: "50%", 
-            bgcolor: alpha("#6366f1", 0.1), mb: 2,
-            border: `1px solid ${alpha("#6366f1", 0.3)}`
+            bgcolor: "#050810", mb: 2,
+            border: `1px solid ${COLORS.accentGreen}`
           }}>
-            <PersonAddIcon sx={{ color: "#818cf8" }} />
+            <PersonAddIcon sx={{ color: COLORS.accentGreen }} />
           </Box>
-          <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: "-1.5px" }}>
-            Create Profile
+          
+          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: "-1.5px", color: COLORS.textPrimary }}>
+            Create{" "}
+            <Box
+              component="span"
+              sx={{ 
+                background: `linear-gradient(120deg, ${COLORS.accentGreen} 0%, ${COLORS.accentGreen} 40%, ${COLORS.accentBlue} 100%)`, 
+                WebkitBackgroundClip: "text", 
+                WebkitTextFillColor: "transparent",
+                display: "inline",
+                fontWeight: 900
+              }}
+            >
+              Profile
+            </Box>
           </Typography>
-          <Typography variant="body2" sx={{ color: "#64748b", fontFamily: "monospace" }}>
+          
+          <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontFamily: "monospace", fontSize: "0.8rem", mt: 0.5 }}>
             {loading ? "[ system: writing_to_database... ]" : "[ status: idle ]"}
           </Typography>
         </Box>
@@ -122,7 +101,7 @@ function Signup({ setIsLogin }) {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <AccountCircleIcon sx={{ fontSize: 20, color: "#6366f1" }} />
+                  <AccountCircleIcon sx={{ fontSize: 20, color: COLORS.accentGreen }} />
                 </InputAdornment>
               ),
             }}
@@ -138,7 +117,7 @@ function Signup({ setIsLogin }) {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <AlternateEmailIcon sx={{ fontSize: 20, color: "#6366f1" }} />
+                  <AlternateEmailIcon sx={{ fontSize: 20, color: COLORS.accentGreen }} />
                 </InputAdornment>
               ),
             }}
@@ -154,7 +133,7 @@ function Signup({ setIsLogin }) {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <LockIcon sx={{ fontSize: 20, color: "#6366f1" }} />
+                  <LockIcon sx={{ fontSize: 20, color: COLORS.accentGreen }} />
                 </InputAdornment>
               ),
             }}
@@ -162,21 +141,25 @@ function Signup({ setIsLogin }) {
           
           <CyberButton type="submit" fullWidth disabled={loading}>
             {loading ? (
-              <CircularProgress size={24} sx={{ color: "#fff" }} />
+              <CircularProgress size={24} sx={{ color: "#050810" }} />
             ) : (
               "Initialize Account"
             )}
           </CyberButton>
         </form>
 
-        <Box sx={{ textAlign: "center", mt: 4 }}>
+        <Box sx={{ textTransform: "none", textAlign: "center", mt: 4 }}>
           <Button
             variant="text"
             onClick={() => setIsLogin(true)}
             disabled={loading}
             sx={{
-              color: "#818cf8", fontWeight: 700, textTransform: "none",
-              "&:hover": { background: "transparent", color: "#fff" },
+              color: COLORS.accentGreen, 
+              fontWeight: 700, 
+              textTransform: "none",
+              fontFamily: "'Fira Code', monospace",
+              fontSize: "0.85rem",
+              "&:hover": { background: "transparent", color: COLORS.textPrimary },
             }}
           >
             Access Terminal (Login)

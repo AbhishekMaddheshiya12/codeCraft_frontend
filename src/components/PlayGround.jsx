@@ -13,43 +13,9 @@ import toast from "react-hot-toast";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import SubmitAnimation from "./loader/SubmitAnimation";
+import {PlayGroundContainer, ActionButton, ConsoleBox} from "../styledComponents/StyledComp.jsx";
 
-const PlayGroundContainer = styled(Box)({
-  display: "flex",
-  flexDirection: "column",
-  height: "calc(100vh - 64px)", 
-  backgroundColor: "#020617",
-  overflow: "hidden",
-});
-
-const ActionButton = styled(Button)({
-  backgroundColor: alpha("#1e293b", 0.8),
-  color: "#fff",
-  padding: "6px 20px",
-  fontWeight: 700,
-  borderRadius: "8px",
-  fontSize: "0.8rem",
-  textTransform: "none",
-  border: "1px solid rgba(255, 255, 255, 0.05)",
-  "&:hover": {
-    backgroundColor: "#6366f1",
-    boxShadow: "0 0 15px rgba(99, 102, 241, 0.3)",
-  },
-});
-
-const ConsoleBox = styled(Box)({
-  height: "100%",
-  backgroundColor: "#020617",
-  color: "white",
-  padding: "16px",
-  overflowY: "auto",
-  overflowX: "hidden",
-  scrollbarWidth: "none", 
-  "&::-webkit-scrollbar": { display: "none" },
-  msOverflowStyle: "none",
-});
-
-function PlayGround({ tesTCases }) {
+function PlayGround({ tesTCCases }) {
   const { problemId } = useParams();
   const userId = useSelector((state) => state.auth.user._id);
   const monaco = useMonaco();
@@ -59,10 +25,11 @@ function PlayGround({ tesTCases }) {
 
   const [language, setLanguage] = useState(() => localStorage.getItem(langKey) || "javascript");
   const [code, setCode] = useState(() => localStorage.getItem(codeKey) || "");
-  const [testCases, setTestCases] = useState(tesTCases);
+  const [testCases, setTestCases] = useState(tesTCCases);
   const [story, setStory] = useState(null);
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const language_id = { c: 1, cpp: 2, javascript: 9, java: 3, python: 4 };
 
@@ -74,8 +41,8 @@ function PlayGround({ tesTCases }) {
     setLanguage(savedLang || "javascript");
     setStory(null);
     setResponse(null);
-    setTestCases(tesTCases);
-  }, [problemId, codeKey, langKey, tesTCases]);
+    setTestCases(tesTCCases);
+  }, [problemId, codeKey, langKey, tesTCCases]);
 
   useEffect(() => {
     if (monaco) {
@@ -84,8 +51,9 @@ function PlayGround({ tesTCases }) {
         inherit: true,
         rules: [],
         colors: {
-          "editor.background": "#0f172a", 
+          "editor.background": "#090d16", // Adjusted to remove contrast lines around margins
           "editor.lineHighlightBackground": "#1e293b",
+          "editor.lineHighlightBorder": "#090d16",
         },
       });
       monaco.editor.setTheme("codecraft-dark");
@@ -113,7 +81,7 @@ function PlayGround({ tesTCases }) {
         problemId: problemId 
       };
       
-      const res = await axios.post("https://codecraft-sr3j.onrender.com/user/getSubmission", data, config);
+      const res = await axios.post(`${apiUrl}/user/getSubmission`, data, config);
       setTestCases(res.data.updatedTestCases);
       setStory(res.data.failureStatus);
       return res.data.results;
@@ -135,7 +103,7 @@ function PlayGround({ tesTCases }) {
 
     try {
       await axios.post(
-        "https://codecraft-sr3j.onrender.com/user/judge0-callback",
+        `${apiUrl}/user/judge0-callback`,
         { story: finalStory, problemId, userId },
         { withCredentials: true, headers: { "Content-Type": "application/json" } }
       );
@@ -148,7 +116,7 @@ function PlayGround({ tesTCases }) {
   const handleAnalyze = async () => {
     setLoading(true);
     try {
-      const res = await axios.post(`https://codecraft-sr3j.onrender.com/problems/analyze`, { code }, { withCredentials: true });
+      const res = await axios.post(`${apiUrl}/problems/analyze`, { code }, { withCredentials: true });
       setResponse(res.data.analysis);
       toast.success("AI Analysis Complete");
     } catch (error) {
@@ -159,7 +127,7 @@ function PlayGround({ tesTCases }) {
   };
 
   const getColor = (status) => {
-    if (status === "Accepted") return "#4ade80";
+    if (status === "Accepted") return "#10b981"; // Adjusted to signature Emerald Green
     if (["Wrong Answer", "Runtime Error", "Time Limit Exceeded"].includes(status)) return "#f87171";
     return "#64748b";
   };
@@ -174,11 +142,22 @@ function PlayGround({ tesTCases }) {
         gap: 2, 
         p: 1.5, 
         px: 3, 
-        borderBottom: "1px solid rgba(255,255,255,0.05)",
-        bgcolor: alpha("#0f172a", 0.4)
+        borderBottom: "1px solid rgba(30, 41, 59, 0.6)",
+        bgcolor: "rgba(9, 13, 22, 0.9)"
       }}>
         <ActionButton onClick={handleRunCode}>Run Code</ActionButton>
-        <ActionButton sx={{ bgcolor: "#6366f1", "&:hover": { bgcolor: "#4f46e5" } }} onClick={setAttempt}>
+        <ActionButton 
+          sx={{ 
+            backgroundColor: "#10b981", 
+            color: "#090d16",
+            border: "1px solid #10b981",
+            "&:hover": { 
+              backgroundColor: "transparent", 
+              color: "#10b981" 
+            } 
+          }} 
+          onClick={setAttempt}
+        >
           Submit
         </ActionButton>
       </Box>
@@ -209,15 +188,15 @@ function PlayGround({ tesTCases }) {
 
         <ConsoleBox>
           <Paper sx={{ 
-            bgcolor: alpha("#1e293b", 0.4), 
+            bgcolor: "rgba(30, 41, 59, 0.2)", 
             display: "flex", 
             alignItems: "center", 
             justifyContent: "space-between", 
-            p: 1.5, mb: 3, borderRadius: "12px",
-            border: "1px solid rgba(255,255,255,0.05)"
+            p: 1.5, mb: 3, borderRadius: "8px",
+            border: "1px solid #1e293b"
           }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <CheckBoxIcon sx={{ color: "#6366f1", fontSize: 20 }} />
+              <CheckBoxIcon sx={{ color: "#10b981", fontSize: 20 }} /> {/* Adjusted to Emerald */}
               <Typography sx={{ fontWeight: 800, fontSize: "0.75rem", color: "#94a3b8", fontFamily: "monospace" }}>
                 TERMINAL_LOGS
               </Typography>
@@ -227,7 +206,7 @@ function PlayGround({ tesTCases }) {
               <Button 
                 size="small"
                 onClick={handleAnalyze}
-                sx={{ color: "#4ade80", fontSize: "0.7rem", fontWeight: 900, fontFamily: "monospace" }}
+                sx={{ color: "#10b981", fontSize: "0.7rem", fontWeight: 900, fontFamily: "monospace" }} // Adjusted to Emerald
               >
                 {">"} ANALYZE_AI
               </Button>
@@ -271,7 +250,7 @@ function PlayGround({ tesTCases }) {
                     customStyle={{
                       padding: "20px",
                       fontSize: "12px",
-                      backgroundColor: alpha("#0f172a", 0.5),
+                      backgroundColor: "rgba(30, 41, 59, 0.2)",
                       scrollbarWidth: "none",
                     }}
                   >

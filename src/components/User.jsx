@@ -7,6 +7,7 @@ function User() {
   const [userData, setUser] = useState({});
   const userId = useSelector((state) => state.auth.user._id);
   const avatarUrl = useSelector((state) => state.auth.user.avatarUrl);
+  const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -15,7 +16,7 @@ function User() {
           header: { "Content-Type": "application/json" },
         };
         const user = await axios.get(
-          `https://codecraft-sr3j.onrender.com/user/getUserDetails/${userId}`,
+          `${apiUrl}/user/getUserDetails/${userId}`,
           config
         );
         if (!user) {

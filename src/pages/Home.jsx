@@ -20,58 +20,16 @@ import ProblemTable from "../components/ProblemTable";
 import NavBar from "../components/NavBar";
 import Profile from "../components/Profile";
 import { useSelector } from "react-redux";
+import {
+  HomeWrapper,
+  MainContent,
+  ScrollableGrid,
+  GlassPaper,
+  HeaderCell,
+  TechGridOverlay,
+  RadialGlow,
+} from "../styledComponents/HomePageStyle.jsx";
 
-const HomeWrapper = styled(Box)({
-  height: "100vh", 
-  display: "flex",
-  flexDirection: "column",
-  backgroundColor: "#020617", 
-  backgroundImage: `radial-gradient(circle at 50% -10%, rgba(99, 102, 241, 0.15) 0%, transparent 60%)`,
-  color: "#ffffff",
-  overflow: "hidden", 
-});
-
-const MainContent = styled(Container)(({ theme }) => ({
-  flex: 1,
-  display: "flex",
-  gap: theme.spacing(3),
-  marginTop: theme.spacing(2),
-  paddingBottom: theme.spacing(3),
-  overflow: "hidden", 
-}));
-
-const ScrollableGrid = styled(Box)(({ theme }) => ({
-  flex: 1,
-  height: "100%",
-  overflowY: "auto",     
-  overflowX: "hidden",     
-  paddingRight: theme.spacing(1),
-  "&::-webkit-scrollbar": { display: "none" },
-  msOverflowStyle: "none", 
-  scrollbarWidth: "none", 
-}));
-
-const GlassPaper = styled(Paper)({
-  background: alpha("#0f172a", 0.6),
-  backdropFilter: "blur(20px)",
-  borderRadius: "20px",
-  border: "1px solid rgba(255, 255, 255, 0.05)",
-  boxShadow: "0 10px 40px rgba(0, 0, 0, 0.4)",
-  overflow: "hidden", 
-});
-
-const HeaderCell = styled(TableCell)({
-  backgroundColor: "#1e293b", 
-  color: "#64748b",
-  fontWeight: 800,
-  fontSize: "0.7rem",
-  textTransform: "uppercase",
-  letterSpacing: "1.5px",
-  borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-  position: "sticky",
-  top: 0,
-  zIndex: 10,
-});
 
 function Home() {
   const theme = useTheme();
@@ -82,45 +40,129 @@ function Home() {
     <HomeWrapper>
       <NavBar />
 
+      <TechGridOverlay />
+
+      <RadialGlow
+        color="radial-gradient(circle,#10b981,transparent)"
+        top="-10%"
+        left="-5%"
+        delay="0s"
+      />
+
+      <RadialGlow
+        color="radial-gradient(circle,#2563eb,transparent)"
+        top="55%"
+        left="25%"
+        delay="-4s"
+      />
+
       <MainContent maxWidth="xl">
-        <Grid container spacing={3} sx={{ width: "100%", height: "100%" }}>
-          <Grid size={{ xs: 12, md: 9 }} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        <Grid
+          container
+          spacing={3}
+          sx={{
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <Grid
+            size={{ xs: 12, md: 9 }}
+            sx={{
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <Box sx={{ mb: 2, px: 1 }}>
-              <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: "-1px" }}>
-                CORE <span style={{ color: "#6366f1" }}>LIBRARY</span>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 800,
+                  color: "#fff",
+                }}
+              >
+                CORE{" "}
+                <Box
+                  component="span"
+                  sx={{
+                    background:
+                      "linear-gradient(120deg,#10b981 0%,#059669 50%,#2563eb 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    display: "inline",
+                  }}
+                >
+                  LIBRARY
+                </Box>
               </Typography>
-              <Typography variant="caption" sx={{ color: "#475569", fontFamily: "monospace" }}>
-                {`> SESSION_ACTIVE: ${user?.username?.toUpperCase() || 'GUEST'} | GRID_STATUS: ONLINE`}
+
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "#94a3b8",
+                  fontFamily: "'Fira Code', monospace",
+                }}
+              >
+                {`> SESSION_ACTIVE: ${
+                  user?.username?.toUpperCase() || "GUEST"
+                } | GRID_STATUS: ONLINE`}
               </Typography>
             </Box>
 
             <ScrollableGrid>
-              <TableContainer 
-                component={GlassPaper} 
-                sx={{ 
+              <TableContainer
+                component={GlassPaper}
+                sx={{
                   width: "100%",
                   overflowX: "auto",
-                  "&::-webkit-scrollbar": { display: "none" },
+
+                  "&::-webkit-scrollbar": {
+                    display: "none",
+                  },
+
                   msOverflowStyle: "none",
                   scrollbarWidth: "none",
                 }}
               >
-                <Table 
-                  stickyHeader 
-                  sx={{ 
+                <Table
+                  stickyHeader
+                  sx={{
                     minWidth: isMobile ? 800 : "100%",
-                    tableLayout: "fixed" 
+                    tableLayout: "fixed",
+                    background: "#090d16",
+
+                    "& td": {
+                      borderColor: "#1e293b",
+                      color: "#e2e8f0",
+                    },
+
+                    "& tr:hover": {
+                      background: "rgba(16,185,129,.06)",
+                    },
                   }}
                 >
                   <TableHead>
                     <TableRow>
-                      <HeaderCell align="center" sx={{ width: 100 }}>Status</HeaderCell>
+                      <HeaderCell align="center" sx={{ width: 100 }}>
+                        Status
+                      </HeaderCell>
+
                       <HeaderCell sx={{ width: 250 }}>Identifier</HeaderCell>
-                      <HeaderCell align="center" sx={{ width: 150 }}>Complexity</HeaderCell>
-                      <HeaderCell align="center" sx={{ width: 150 }}>Sector</HeaderCell>
-                      <HeaderCell align="right" sx={{ width: 150 }}>Resource</HeaderCell>
+
+                      <HeaderCell align="center" sx={{ width: 150 }}>
+                        Complexity
+                      </HeaderCell>
+
+                      <HeaderCell align="center" sx={{ width: 150 }}>
+                        Sector
+                      </HeaderCell>
+
+                      <HeaderCell align="right" sx={{ width: 150 }}>
+                        Resource
+                      </HeaderCell>
                     </TableRow>
                   </TableHead>
+
                   <TableBody>
                     <ProblemTable />
                   </TableBody>
@@ -128,25 +170,42 @@ function Home() {
               </TableContainer>
             </ScrollableGrid>
           </Grid>
+
           {!isMobile && (
-            <Grid size={{ md: 3 }} sx={{ height: "100%" }}>
-              <Box sx={{ 
-                height: "100%", 
-                position: "sticky", 
-                top: 0 
-              }}>
-                <GlassPaper sx={{ p: 0 }}>
+            <Grid
+              size={{ md: 3 }}
+              sx={{
+                height: "100%",
+              }}
+            >
+              <Box
+                sx={{
+                  height: "100%",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 2,
+                }}
+              >
+                <GlassPaper
+                  sx={{
+                    mt: 10,
+                    p: 0,
+                    background: "#090d16",
+                    border: "1px solid #1e293b",
+                  }}
+                >
                   <Profile />
                 </GlassPaper>
-                
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
-                    display: "block", 
-                    mt: 2, 
-                    textAlign: "center", 
-                    color: alpha("#475569", 0.5),
-                    fontFamily: "monospace" 
+
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    mt: 2,
+                    textAlign: "center",
+                    color: "#64748b",
+                    fontFamily: "'Fira Code', monospace",
+                    letterSpacing: "1px",
                   }}
                 >
                   SYSTEM_VER: 4.2.0_STABLE
@@ -154,7 +213,6 @@ function Home() {
               </Box>
             </Grid>
           )}
-
         </Grid>
       </MainContent>
     </HomeWrapper>

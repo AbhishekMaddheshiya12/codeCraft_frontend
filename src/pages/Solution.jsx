@@ -30,12 +30,12 @@ function Solution() {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md")); // Changed to 'md' to match Home/Profile breakpoint
-
+  const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
     const getData = async () => {
       try {
         const response = await axios.get(
-          `https://codecraft-sr3j.onrender.com/problems/${problemId}`,
+          `${apiUrl}/problems/${problemId}`,
         );
         setProblemData(response?.data?.problem[0]);
       } catch (error) {

@@ -2,27 +2,16 @@ import React, { useEffect, useState } from "react";
 import CheckIcon from "@mui/icons-material/Check";
 import { green, red, yellow } from "@mui/material/colors";
 import YouTubeIcon from "@mui/icons-material/YouTube";
-import { TableRow, TableCell, Box, Skeleton, alpha, styled } from "@mui/material";
-import { Link } from "./StyledComp.jsx";
+import {TableRow,TableCell, Box, Skeleton, alpha, styled } from "@mui/material";
 import axios from "axios";
 import { useSelector } from "react-redux";
-
-const StyledRow = styled(TableRow)(({ theme }) => ({
-  transition: "all 0.2s ease",
-  "&:hover": {
-    backgroundColor: alpha("#6366f1", 0.08),
-    cursor: "pointer",
-  },
-  "& td": {
-    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-    color: "#e2e8f0",
-  },
-}));
+import {StyledRow,Link} from "../styledComponents/StyledComp.jsx";
 
 function ProblemTable() {
   const user = useSelector((state) => state.auth.user);
   const [problems, setProblems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchProblems = async () => {
@@ -33,7 +22,7 @@ function ProblemTable() {
           headers: { "Content-Type": "application/json" },
         };
         const response = await axios.get(
-          "https://codecraft-sr3j.onrender.com/problems/all-problems",
+          `${apiUrl}/problems/all-problems`,
           config
         );
         setProblems(response.data || []);

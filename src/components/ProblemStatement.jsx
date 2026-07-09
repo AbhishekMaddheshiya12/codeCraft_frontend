@@ -1,47 +1,11 @@
-import { Box, Button, IconButton, Typography, alpha, styled } from "@mui/material";
+import { Box, Button, IconButton, Typography, alpha,} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom"; 
 import axios from "axios";
-
-const ScrollContainer = styled(Box)(({ theme }) => ({
-  height: `calc(100vh - 64px)`,
-  overflowY: "auto",
-  padding: theme.spacing(3),
-  background: "#020617",
-  backgroundImage: `radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 50%)`,
-  color: "#ffffff",
-  scrollbarWidth: "none",
-  "&::-webkit-scrollbar": { display: "none" }, 
-  msOverflowStyle: "none",
-}));
-
-const StyledButton = styled(Button)({
-  backgroundColor: alpha("#1e293b", 0.8),
-  color: "#94a3b8",
-  fontSize: "0.75rem",
-  fontWeight: 700,
-  textTransform: "none",
-  borderRadius: "8px",
-  padding: "6px 16px",
-  border: "1px solid rgba(255, 255, 255, 0.05)",
-  "&:hover": {
-    backgroundColor: "#6366f1",
-    color: "#fff",
-  },
-});
-
-const ExampleBox = styled(Box)({
-  backgroundColor: alpha("#0f172a", 0.5),
-  backdropFilter: "blur(10px)",
-  padding: "16px",
-  marginTop: "16px",
-  borderRadius: "12px",
-  border: "1px solid rgba(255, 255, 255, 0.05)",
-  fontFamily: "monospace",
-});
+import {ScrollContainer, StyledButton, ExampleBox} from "../styledComponents/StyledComp.jsx";
 
 function ProblemStatement({ problemData, setIsSubmission }) {
   const [likes, setLikes] = useState(problemData?.likes?.length || 0);
@@ -50,6 +14,7 @@ function ProblemStatement({ problemData, setIsSubmission }) {
   const [isLiked, setIsLiked] = useState(false);
   const [isDisLiked, setIsDisLiked] = useState(false);
   const [isSolved, setIsSolved] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const config = {
@@ -59,7 +24,7 @@ function ProblemStatement({ problemData, setIsSubmission }) {
 
     const getData = async () => {
       try {
-        const response = await axios.get(`https://codecraft-sr3j.onrender.com/problems/getLikes/${problemId}`, config);
+        const response = await axios.get(`${apiUrl}/problems/getLikes/${problemId}`, config);
         setLikes(response.data.likes);
         setIsLiked(response.data.userLike);
         setDisLikes(response.data.dislikes);
@@ -71,7 +36,7 @@ function ProblemStatement({ problemData, setIsSubmission }) {
 
     const getSolvedStatus = async () => {
       try {
-        const response = await axios.get(`https://codecraft-sr3j.onrender.com/problems/getSolved/${problemId}`, config);
+        const response = await axios.get(`${apiUrl}/problems/getSolved/${problemId}`, config);
         setIsSolved(response.data.solved);
       } catch (error) {
         console.error("Error fetching solved status:", error);
@@ -89,7 +54,7 @@ function ProblemStatement({ problemData, setIsSubmission }) {
     setIsLiked(!isLiked);
     setLikes(prevLiked ? likes - 1 : likes + 1);
     try {
-      await axios.post(`https://codecraft-sr3j.onrender.com/problems/like/${problemData._id}`, {}, { withCredentials: true });
+      await axios.post(`${apiUrl}/problems/like/${problemData._id}`, {}, { withCredentials: true });
     } catch (error) {
       console.error(error);
     }
@@ -100,7 +65,7 @@ function ProblemStatement({ problemData, setIsSubmission }) {
     setIsDisLiked(!isDisLiked);
     setDisLikes(prevDisLiked ? disLikes - 1 : disLikes + 1);
     try {
-      await axios.post(`https://codecraft-sr3j.onrender.com/problems/dislike/${problemData._id}`, {}, { withCredentials: true });
+      await axios.post(`${apiUrl}/problems/dislike/${problemData._id}`, {}, { withCredentials: true });
     } catch (error) {
       console.error(error);
     }
@@ -108,10 +73,10 @@ function ProblemStatement({ problemData, setIsSubmission }) {
 
   const getDifficultyColor = (level) => {
     switch (level) {
-      case "Easy": return "#4ade80"; 
-      case "Medium": return "#fbbf24"; 
-      case "Hard": return "#f87171";
-      default: return "#fbbf24";
+      case "Easy": return "#10b981"; 
+      case "Medium": return "#eab308"; 
+      case "Hard": return "#f87171"; 
+      default: return "#eab308";
     }
   };
 
@@ -122,53 +87,55 @@ function ProblemStatement({ problemData, setIsSubmission }) {
         <StyledButton>Solution</StyledButton>
         <StyledButton onClick={() => setIsSubmission(true)}>Submission</StyledButton>
       </Box>
-      <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: "-1px", mb: 2 }}>
+      <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: "-0.04em", mb: 2, color: "#ffffff" }}>
         {problemData.title}
       </Typography>
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 3, mb: 4 }}>
-        <Typography sx={{ color: getDifficultyColor(problemData.difficulty), fontWeight: 800, fontSize: "0.85rem" }}>
+        <Typography sx={{ color: getDifficultyColor(problemData.difficulty), fontWeight: 800, fontSize: "0.85rem", fontFamily: "monospace" }}>
           {problemData.difficulty?.toUpperCase()}
         </Typography>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
           <IconButton onClick={handleLikes} size="small">
-            <ThumbUpIcon sx={{ color: isLiked ? "#6366f1" : "#475569", fontSize: 18 }} />
+            <ThumbUpIcon sx={{ color: isLiked ? "#10b981" : "#475569", fontSize: 18 }} />
           </IconButton>
-          <Typography variant="body2" sx={{ color: "#94a3b8" }}>{likes}</Typography>
+          <Typography variant="body2" sx={{ color: "#94a3b8", fontWeight: 700, fontFamily: "monospace" }}>{likes}</Typography>
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
           <IconButton onClick={handleDisLikes} size="small">
             <ThumbDownAltIcon sx={{ color: isDisLiked ? "#f87171" : "#475569", fontSize: 18 }} />
           </IconButton>
-          <Typography variant="body2" sx={{ color: "#94a3b8" }}>{disLikes}</Typography>
+          <Typography variant="body2" sx={{ color: "#94a3b8", fontWeight: 700, fontFamily: "monospace" }}>{disLikes}</Typography>
         </Box>
 
-        {isSolved && <DoneAllIcon sx={{ color: "#4ade80", fontSize: 20 }} />}
+        {isSolved && <DoneAllIcon sx={{ color: "#10b981", fontSize: 20 }} />}
       </Box>
+      
       <Box sx={{ maxWidth: "800px" }}>
-        <Typography variant="body1" sx={{ color: "#cbd5e1", lineHeight: 1.7, mb: 4 }}>
+        <Typography variant="body1" sx={{ color: "#cbd5e1", lineHeight: 1.7, fontSize: "1rem", mb: 4 }}>
           {problemData.description}
         </Typography>
 
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, fontSize: "1rem" }}>
-          Examples
+        <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, fontSize: "1.05rem", color: "#ffffff", fontFamily: "monospace" }}>
+          // Examples
         </Typography>
         
         {problemData?.examples?.map((example, index) => (
           <ExampleBox key={index}>
-            <Typography variant="body2" sx={{ color: "#6366f1", fontWeight: "bold", mb: 1 }}>
-              Example {index + 1}
+            {/* Changed from #38bdf8 to landing page emerald green #10b981 */}
+            <Typography variant="body2" sx={{ color: "#10b981", fontWeight: 800, mb: 1, fontFamily: "monospace" }}>
+              Example {index + 1}:
             </Typography>
-            <Typography variant="body2" sx={{ color: "#fff", mb: 0.5 }}>
-              <span style={{ color: "#64748b" }}>Input:</span> {example.input}
+            <Typography variant="body2" sx={{ color: "#e2e8f0", mb: 0.5, fontFamily: "monospace" }}>
+              <span style={{ color: "#64748b", fontWeight: 700 }}>Input:</span> {example.input}
             </Typography>
-            <Typography variant="body2" sx={{ color: "#fff", mb: 0.5 }}>
-              <span style={{ color: "#64748b" }}>Output:</span> {example.output}
+            <Typography variant="body2" sx={{ color: "#e2e8f0", mb: 0.5, fontFamily: "monospace" }}>
+              <span style={{ color: "#64748b", fontWeight: 700 }}>Output:</span> {example.output}
             </Typography>
             {example.explanation && (
-              <Typography variant="body2" sx={{ color: "#94a3b8", mt: 1, fontStyle: "italic" }}>
+              <Typography variant="body2" sx={{ color: "#94a3b8", mt: 1, fontStyle: "italic", fontFamily: "monospace" }}>
                 Explanation: {example.explanation}
               </Typography>
             )}
@@ -176,17 +143,19 @@ function ProblemStatement({ problemData, setIsSubmission }) {
         ))}
 
         <Box sx={{ mt: 4, mb: 4 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, fontSize: "1rem" }}>
-            Constraints
+          <Typography variant="h6" sx={{ fontWeight: 800, mb: 2, fontSize: "1.05rem", color: "#ffffff", fontFamily: "monospace" }}>
+            // Constraints
           </Typography>
           {problemData?.constraints?.map((constraint, index) => (
-            <Box key={index} sx={{ display: "flex", gap: 1, mb: 1 }}>
-              <Typography sx={{ color: "#6366f1" }}>•</Typography>
+            <Box key={index} sx={{ display: "flex", gap: 1, mb: 1.5, alignItems: "center" }}>
+              <Typography sx={{ color: "#10b981", fontWeight: 900 }}>•</Typography>
               <Typography variant="body2" sx={{ 
-                color: "#94a3b8", 
+                color: "#cbd5e1", 
                 fontFamily: "monospace",
-                backgroundColor: alpha("#1e293b", 0.5),
-                px: 1,
+                backgroundColor: "rgba(30, 41, 59, 0.2)",
+                border: "1px solid rgba(30, 41, 59, 0.6)",
+                px: 1.2,
+                py: 0.4,
                 borderRadius: "4px"
               }}>
                 {constraint}

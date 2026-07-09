@@ -53,6 +53,7 @@ const Options = () => {
   const languages = ["Java", "Python", "C++", "C", "Javascript"];
   const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const handleChange = (event) => {
     const { target: { value } } = event;
@@ -73,7 +74,7 @@ const Options = () => {
 
     try {
       const response = await axios.post(
-        "https://codecraft-sr3j.onrender.com/user/updateLanguages",
+        `${apiUrl}/user/updateLanguages`,
         { languages: selected },
         config
       );

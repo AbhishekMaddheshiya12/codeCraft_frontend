@@ -1,47 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Paper, Typography, styled, alpha, Stack, Skeleton } from "@mui/material";
 import axios from "axios";
+import { Box, Typography, Stack, Skeleton, alpha } from "@mui/material";
+import {
+  LogCard,
+  TabButton,
+  SubmissionWrapper,
+  EmptySubmissionBox,
+} from "../styledComponents/StyledComp.jsx";
 import { useSelector } from "react-redux";
 import TerminalIcon from '@mui/icons-material/Terminal';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
-const LogCard = styled(Paper)(({ status }) => ({
-  background: alpha("#0f172a", 0.6),
-  backdropFilter: "blur(10px)",
-  borderRadius: "12px",
-  border: `1px solid ${status === "Accepted" ? alpha("#10b981", 0.3) : alpha("#ef4444", 0.3)}`,
-  padding: "16px 20px",
-  marginBottom: "12px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  transition: "transform 0.2s ease",
-  "&:hover": {
-    transform: "translateX(5px)",
-    background: alpha("#0f172a", 0.8),
-  },
-}));
 
-const TabButton = styled(Button)(({ active }) => ({
-  backgroundColor: active ? alpha("#6366f1", 0.2) : "transparent",
-  color: active ? "#818cf8" : "#94a3b8",
-  border: `1px solid ${active ? alpha("#6366f1", 0.5) : alpha("#ffffff", 0.1)}`,
-  borderRadius: "8px",
-  fontSize: "0.75rem",
-  fontWeight: 700,
-  padding: "6px 16px",
-  textTransform: "none",
-  "&:hover": {
-    backgroundColor: alpha("#6366f1", 0.15),
-    borderColor: "#6366f1",
-  },
-}));
 
 function Submission({ problemId, setIsSubmission }) {
   const [submissionData, setSubmissionData] = useState([]);
   const [loading, setLoading] = useState(true);
   const userId = useSelector(state => state.auth.user._id);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const getSubmission = async () => {
     setLoading(true);
@@ -51,7 +28,7 @@ function Submission({ problemId, setIsSubmission }) {
         headers: { "Content-Type": "application/json" },
       };
       const { data } = await axios.get(
-        `https://codecraft-sr3j.onrender.com/user/getSubmission/${userId}/${problemId}`,
+        `${apiUrl}/user/getSubmission/${userId}/${problemId}`,
         config
       );
       setSubmissionData(data.submission || []);

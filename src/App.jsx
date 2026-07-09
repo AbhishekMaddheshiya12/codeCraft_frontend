@@ -23,6 +23,7 @@ function App() {
   const [authChecked, setAuthChecked] = useState(false);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const apiUrl = import.meta.env.VITE_API_URL;
   useEffect(() => {
     const getDetails = async () => {
       try {
@@ -30,7 +31,7 @@ function App() {
           withCredentials: true,
           headers: { "Content-Type": "application/json" },
         };
-        const data = await axios.get("https://codecraft-sr3j.onrender.com/user/me", config);
+        const data = await axios.get(`${apiUrl}/user/me`, config);
         console.log(data);
         dispatch(userExist(data.data.user));
       } catch (error) {
@@ -41,7 +42,7 @@ function App() {
       }
     };
     getDetails();
-  }, [dispatch]);
+  }, [dispatch,apiUrl]);
   return (
     <div>
       <Suspense fallback={<Loader></Loader>}>

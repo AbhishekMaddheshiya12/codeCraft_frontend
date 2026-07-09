@@ -1,68 +1,27 @@
+import React, { useState } from "react";
 import {
   Box,
   FormControl,
   IconButton,
-  NativeSelect,
+  Select,
+  MenuItem,
   styled,
-  alpha,
 } from "@mui/material";
-import React, { useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
-
-const EditorNavWrapper = styled(Box)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  backgroundColor: alpha("#0f172a", 0.8),
-  padding: "4px 12px",
-  borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-}));
-
-const StyledNativeSelect = styled(NativeSelect)(({ theme }) => ({
-  color: "#94a3b8", 
-  fontSize: "0.75rem",
-  fontFamily: "monospace",
-  fontWeight: 700,
-  padding: "4px 12px",
-  backgroundColor: alpha("#1e293b", 0.5),
-  borderRadius: "6px",
-  transition: "all 0.2s ease",
-  "&::before, &::after": {
-    display: "none", 
-  },
-  "&:hover": {
-    backgroundColor: alpha("#6366f1", 0.1),
-    color: "#6366f1",
-  },
-  "& select": {
-    paddingRight: "24px !important",
-  },
-  "& option": {
-    backgroundColor: "#0f172a", 
-    color: "#94a3b8",
-  },
-}));
-
-const ActionIcon = styled(IconButton)({
-  color: "#475569",
-  padding: "6px",
-  transition: "all 0.2s ease",
-  "&:hover": {
-    color: "#6366f1",
-    backgroundColor: "transparent",
-    transform: "scale(1.1)",
-  },
-});
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import {EditorNavWrapper, StyledSelect, ActionIcon} from "../styledComponents/StyledComp.jsx";
 
 function NewNav({ setLanguage, language }) {
   const [fullScreen, setFullScreen] = useState(false);
 
+  // LOGIC PRESERVED EXACTLY AS ORIGINAL
   const changeHandler = (e) => {
     setLanguage(e.target.value);
   };
 
+  // LOGIC PRESERVED EXACTLY AS ORIGINAL
   const toggleFullScreen = () => {
     setFullScreen(!fullScreen);
     if (!document.fullscreenElement) {
@@ -78,27 +37,60 @@ function NewNav({ setLanguage, language }) {
 
   return (
     <EditorNavWrapper>
-      {/* LANGUAGE SELECTOR */}
-      <Box sx={{ minWidth: 120 }}>
+      {/* UPGRADED DROP-DOWN MENUS WITH SYSTEM ACCENT OVERRIDES */}
+      <Box sx={{ minWidth: 150 }}>
         <FormControl fullWidth size="small">
-          <StyledNativeSelect
+          <StyledSelect
             value={language}
             onChange={changeHandler}
-            inputProps={{
-              name: 'language',
-              id: 'uncontrolled-native',
+            IconComponent={KeyboardArrowDownIcon}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  bgcolor: "#090d16", 
+                  border: "1px solid #1e293b",
+                  borderRadius: "8px",
+                  marginTop: "6px",
+                  boxShadow: "0 12px 30px -10px rgba(0, 0, 0, 0.7)",
+                  "& .MuiMenu-list": {
+                    padding: "4px",
+                  },
+                  "& .MuiMenuItem-root": {
+                    color: "#cbd5e1",
+                    fontSize: "0.75rem",
+                    fontFamily: "'Fira Code', monospace",
+                    fontWeight: 700,
+                    padding: "8px 14px",
+                    borderRadius: "4px",
+                    transition: "all 0.15s ease-in-out",
+                    "&:hover": {
+                      bgcolor: "rgba(16, 185, 129, 0.1)", 
+                      color: "#10b981",
+                    },
+                    "&.Mui-selected": {
+                      bgcolor: "rgba(16, 185, 129, 0.15)", 
+                      color: "#10b981",
+                      fontWeight: 900,
+                      "&:hover": {
+                        bgcolor: "rgba(16, 185, 129, 0.2)",
+                      }
+                    }
+                  }
+                }
+              }
             }}
           >
-            <option value={"javascript"}>JAVASCRIPT</option>
-            <option value={"python"}>PYTHON</option>
-            <option value={"java"}>JAVA</option>
-            <option value={"cpp"}>C++_STABLE</option>
-            <option value={"c"}>C_LEGACY</option>
-          </StyledNativeSelect>
+            <MenuItem value={"javascript"}>JAVASCRIPT</MenuItem>
+            <MenuItem value={"python"}>PYTHON</MenuItem>
+            <MenuItem value={"java"}>JAVA</MenuItem>
+            <MenuItem value={"cpp"}>C++_STABLE</MenuItem>
+            <MenuItem value={"c"}>C_LEGACY</MenuItem>
+          </StyledSelect>
         </FormControl>
       </Box>
 
-      <Box sx={{ display: "flex", gap: 0.5 }}>
+      {/* USER INTERACTION LOGIC LINKS */}
+      <Box sx={{ display: "flex", gap: 1 }}>
         <ActionIcon onClick={() => console.log("System Settings Initialized")}>
           <SettingsIcon sx={{ fontSize: 18 }} />
         </ActionIcon>

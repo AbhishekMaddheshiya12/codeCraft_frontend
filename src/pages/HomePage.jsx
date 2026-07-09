@@ -1,252 +1,215 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  Container,
-  Grid,
-  Paper,
-  styled,
-  alpha,
-} from "@mui/material";
-import NavBar from "../components/NavBar";
-import CodeIcon from "@mui/icons-material/Code";
-import ForumIcon from "@mui/icons-material/Forum";
-import TrackChangesIcon from "@mui/icons-material/TrackChanges";
-import SchoolIcon from "@mui/icons-material/School";
+import { Box, Typography, styled, Stack, Container, Button } from "@mui/material";
+import { keyframes } from "@mui/system";
 import TerminalIcon from "@mui/icons-material/Terminal";
+import ShieldIcon from "@mui/icons-material/Shield";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import NavBar from "../components/NavBar";
 import { useNavigate } from "react-router";
+import {
+  LandingWrapper,
+  TechGridOverlay,
+  RadialGlow,
+  TerminalFrame,
+  TerminalHeader,
+  TerminalBody,
+  Dot,
+  CodeLine,
+  Cursor,
+  BadgeWrapper,
+  revealUp,
+} from "../styledComponents/HomePageStyle.jsx";
 
-const FeatureCard = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(4),
-  textAlign: "center",
-  background: alpha("#1A2B4A", 0.2),
-  backdropFilter: "blur(10px)",
-  border: `1px solid ${alpha("#58a6ff", 0.2)}`,
-  borderRadius: "20px",
-  color: "#fff",
-  minHeight: 280,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-  "&:hover": {
-    transform: "translateY(-10px)",
-    boxShadow: `0 0 30px ${alpha("#58a6ff", 0.3)}`,
-    borderColor: "#58a6ff",
-    background: alpha("#1A2B4A", 0.4),
-  },
-}));
+const auroraFlow = keyframes`
+  0% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(40px, -60px) scale(1.15); }
+  100% { transform: translate(0px, 0px) scale(1); }
+`;
 
-const HeroSection = styled(Box)(({ theme }) => ({
-  background: "radial-gradient(circle at 50% 50%, #1A2B4A 0%, #050a14 100%)",
-  color: "white",
-  padding: theme.spacing(20, 0, 15),
-  textAlign: "center",
-  position: "relative",
-  overflow: "hidden",
-  "&::before": {
-    content: '""',
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: "url('https://www.transparenttextures.com/patterns/carbon-fibre.png')",
-    opacity: 0.1,
-  },
-}));
+const blink = keyframes`
+  50% { opacity: 0; }
+`;
 
-const GlowButton = styled(Button)(({ theme }) => ({
-  borderRadius: "50px",
-  padding: "12px 35px",
-  textTransform: "none",
-  fontSize: "1.1rem",
-  fontWeight: 600,
-  transition: "all 0.3s ease",
-  "&.MuiButton-contained": {
-    backgroundColor: "#58a6ff",
-    boxShadow: `0 0 15px ${alpha("#58a6ff", 0.5)}`,
-    "&:hover": {
-      backgroundColor: "#1f6feb",
-      boxShadow: `0 0 25px ${alpha("#58a6ff", 0.8)}`,
-    },
-  },
-  "&.MuiButton-outlined": {
-    borderWidth: "2px",
-    borderColor: alpha("#58a6ff", 0.5),
-    "&:hover": {
-      borderWidth: "2px",
-      backgroundColor: alpha("#58a6ff", 0.1),
-    },
-  },
-}));
 
-function HomePage() {
+function LandingPage() {
   const navigate = useNavigate();
-
+  const handleAuthClick = () => {
+    navigate("/authentication");
+  }
   return (
-    <Box sx={{ bgcolor: "#050a14", color: "white", minHeight: "100vh" }}>
+    <LandingWrapper>
       <NavBar />
+      <TechGridOverlay />
+      
+      <RadialGlow color="radial-gradient(circle, #10b981, transparent)" top="-10%" left="-5%" delay="0s" />
+      <RadialGlow color="radial-gradient(circle, #2563eb, transparent)" top="30%" right="-10%" delay="-4s" />
 
-      <HeroSection>
-        <Container maxWidth="md" sx={{ position: "relative", zIndex: 1 }}>
-          <Typography
-            variant="h1"
-            sx={{
-              fontWeight: 800,
-              fontSize: { xs: "2.8rem", md: "4.5rem" },
-              letterSpacing: "-0.02em",
-              mb: 2,
-              background: "linear-gradient(to right, #fff, #58a6ff)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
+      <Container 
+        maxWidth="lg" 
+        sx={{ 
+          flex: 1, 
+          display: "flex", 
+          alignItems: "center", 
+          position: "relative", 
+          zIndex: 1,
+          py: { xs: 8, md: 0 }
+        }}
+      >
+        <Box 
+          sx={{ 
+            display: "grid", 
+            gridTemplateColumns: { xs: "1fr", md: "1.1fr 0.9fr" },
+            gap: { xs: 8, lg: 12 },
+            alignItems: "center",
+            width: "100%"
+          }}
+        >
+          <Stack 
+            spacing={4} 
+            sx={{ 
+              animation: `${revealUp} 0.7s cubic-bezier(0.16, 1, 0.3, 1)`
             }}
           >
-            Code the Future.
-          </Typography>
-          
-          <Typography
-            variant="h5"
-            sx={{
-              color: alpha("#fff", 0.7),
-              mb: 5,
-              maxWidth: "600px",
-              mx: "auto",
-              fontWeight: 300,
-              lineHeight: 1.6,
-            }}
-          >
-            The ultimate ecosystem for developers to master modern tech through 
-            high-fidelity simulation and neural-pathway learning.
-          </Typography>
-
-          <Box sx={{ display: "flex", gap: 3, justifyContent: "center", mb: 8 }}>
-            <GlowButton variant="contained" onClick={() => navigate("/authentication")}>
-              Initialize Session
-            </GlowButton>
-            <GlowButton variant="outlined" color="inherit">
-              Explore Tech Stack
-            </GlowButton>
-          </Box>
-
-          <Grid container spacing={4} sx={{ mt: 5 }}>
-            {[
-              { label: "Algorithms", val: "200+" },
-              { label: "Kernels", val: "25" },
-              { label: "Users", val: "50K" },
-              { label: "Latency", val: "0ms" },
-            ].map((stat, i) => (
-              <Grid item xs={6} sm={3} key={i}>
-                <Typography variant="h4" sx={{ fontWeight: 800, color: "#58a6ff" }}>
-                  {stat.val}
-                </Typography>
-                <Typography variant="overline" sx={{ opacity: 0.6, letterSpacing: 2 }}>
-                  {stat.label}
-                </Typography>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </HeroSection>
-
-      <Container maxWidth="lg" sx={{ py: 15 }}>
-        <Box sx={{ textAlign: "center", mb: 10 }}>
-          <Typography variant="overline" sx={{ color: "#58a6ff", fontWeight: 700, letterSpacing: 3 }}>
-            System Capabilities
-          </Typography>
-          <Typography variant="h3" sx={{ fontWeight: 700, mt: 1 }}>
-            Engineered for Excellence
-          </Typography>
-        </Box>
-
-        <Grid container spacing={4}>
-          {[
-            { icon: <CodeIcon />, title: "Quantum IDE", desc: "Low-latency browser-based compiler with AI-driven autocompletion." },
-            { icon: <ForumIcon />, title: "Neural Network", desc: "Collaborative knowledge sharing through decentralized forums." },
-            { icon: <TrackChangesIcon />, title: "Bio-Metrics", desc: "Advanced progress visualization with predictive skill-mapping." },
-            { icon: <SchoolIcon />, title: "The Academy", desc: "Curated learning paths designed by industry architects." },
-          ].map((feat, i) => (
-            <Grid item xs={12} md={6} lg={3} key={i}>
-              <FeatureCard elevation={0}>
-                <Box sx={{ color: "#58a6ff", fontSize: 50, mb: 2 }}>{feat.icon}</Box>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                  {feat.title}
-                </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.7 }}>
-                  {feat.desc}
-                </Typography>
-              </FeatureCard>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-
-      <Box sx={{ py: 10, background: alpha("#1A2B4A", 0.1) }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={8} alignItems="center">
-            <Grid item xs={12} md={5}>
-              <Typography variant="h3" sx={{ fontWeight: 700, mb: 3 }}>
-                Zero Latency. <br />
-                <Box component="span" sx={{ color: "#58a6ff" }}>Pure Logic.</Box>
+            <BadgeWrapper>
+              <TerminalIcon sx={{ color: "#10b981", fontSize: 16 }} />
+              <Typography 
+                variant="caption" 
+                sx={{ fontWeight: 700, letterSpacing: "1px", color: "#cbd5e1", textTransform: "uppercase" }}
+              >
+                Production Cluster Online
               </Typography>
-              <Typography sx={{ opacity: 0.8, mb: 4, fontSize: "1.1rem" }}>
-                Our cloud-native environment bridges the gap between learning and production. 
-                Experience the snap of a local terminal with the power of the cloud.
-              </Typography>
-              <GlowButton variant="contained" startIcon={<TerminalIcon />}>
-                Launch Terminal
-              </GlowButton>
-            </Grid>
-            <Grid item xs={12} md={7}>
+            </BadgeWrapper>
+            
+            <Typography 
+              variant="h1" 
+              sx={{ 
+                fontWeight: 800, 
+                fontSize: { xs: "2.8rem", sm: "3.5rem", lg: "4.2rem" }, 
+                lineHeight: 1.1,
+                letterSpacing: "-0.04em",
+                color: "#ffffff"
+              }}
+            >
+              The technical forge for{" "}
               <Box
-                sx={{
-                  bgcolor: "#0d1117",
-                  borderRadius: "12px",
-                  p: 3,
-                  border: "1px solid #30363d",
-                  boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
-                  fontFamily: "'Fira Code', monospace",
-                  position: "relative",
+                component="span"
+                sx={{ 
+                  background: "linear-gradient(120deg, #10b981 0%, #059669 50%, #2563eb 100%)", 
+                  WebkitBackgroundClip: "text", 
+                  WebkitTextFillColor: "transparent",
+                  display: "inline",
+                  fontWeight: 900
                 }}
               >
-                <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
-                  <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "#ff5f56" }} />
-                  <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "#ffbd2e" }} />
-                  <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "#27c93f" }} />
-                </Box>
-                
-                <Box sx={{ color: "#c9d1d9", fontSize: "0.9rem" }}>
-                  <span style={{ color: "#ff7b72" }}>const</span> <span style={{ color: "#d2a8ff" }}>decryptNeuralPath</span> = (data) {"=>"} {"{"} <br />
-                  &nbsp;&nbsp;<span style={{ color: "#ff7b72" }}>return</span> data.<span style={{ color: "#79c0ff" }}>map</span>(node {"=>"} {"{"} <br />
-                  &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: "#ff7b72" }}>if</span> (node.status === <span style={{ color: "#a5d6ff" }}>'encrypted'</span>) {"{"} <br />
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: "#ff7b72" }}>return</span> {"{ ...node, status: 'ready' }"}; <br />
-                  &nbsp;&nbsp;&nbsp;&nbsp;{"}"} <br />
-                  &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: "#8b949e" }}>// Process signals</span> <br />
-                  &nbsp;&nbsp;&nbsp;&nbsp;<span style={{ color: "#ff7b72" }}>return</span> node; <br />
-                  &nbsp;&nbsp;{"}"}); <br />
-                  {"}"};
-                </Box>
+                elite syntax.
               </Box>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
+            </Typography>
 
-      <Box sx={{ py: 15, textAlign: "center" }}>
-        <Container maxWidth="sm">
-          <Typography variant="h3" sx={{ fontWeight: 800, mb: 3 }}>
-            Ready to Evolve?
-          </Typography>
-          <Typography sx={{ opacity: 0.6, mb: 5 }}>
-            Join the collective of 50,000+ developers shaping the next generation of software.
-          </Typography>
-          <GlowButton variant="contained">Join the Network</GlowButton>
-        </Container>
-      </Box>
-    </Box>
+            <Typography variant="body1" sx={{ color: "#94a3b8", fontSize: "1.1rem", lineHeight: 1.6, maxWidth: "520px" }}>
+              An isolated, highly optimized runtime playground. Write performant logic, track structural complexity, and crunch calculations straight into an active production grid.
+            </Typography>
+
+            <Box sx={{ pt: 1 }}>
+              <Button
+                variant="contained"
+                onClick={handleAuthClick}
+                endIcon={<ShieldIcon sx={{ fontSize: 18 }} />}
+                sx={{
+                  background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                  color: "#090d16",
+                  fontWeight: 800,
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  fontFamily: "'Fira Code', monospace",
+                  letterSpacing: "-0.5px",
+                  px: 4,
+                  py: 2,
+                  fontSize: "1.05rem",
+                  boxShadow: "0 4px 25px rgba(16, 185, 129, 0.25)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #059669 0%, #047857 100%)",
+                  }
+                }}
+              >
+                ssh root@codecraft --authenticate
+              </Button>
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 5, pt: 2, borderTop: "1px solid rgba(30, 41, 59, 0.6)", width: "fit-content" }}>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: "#ffffff", fontFamily: "monospace" }}>0.04ms</Typography>
+                <Typography variant="caption" sx={{ color: "#475569", fontWeight: 700, letterSpacing: "0.5px" }}>COMPILATION SPEED</Typography>
+              </Box>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: "#ffffff", fontFamily: "monospace" }}>99.99%</Typography>
+                <Typography variant="caption" sx={{ color: "#475569", fontWeight: 700, letterSpacing: "0.5px" }}>SANDBOX ISOLATION</Typography>
+              </Box>
+            </Box>
+          </Stack>
+
+          {/* Right Side: Visual Terminal Mockup */}
+          <Box sx={{ display: "flex", justifyContent: { xs: "center", md: "flex-end" } }}>
+            <TerminalFrame>
+              <TerminalHeader>
+                <Stack direction="row" spacing={1}>
+                  <Dot color="#ef4444" />
+                  <Dot color="#eab308" />
+                  <Dot color="#22c55e" />
+                </Stack>
+                <Typography variant="caption" sx={{ color: "#475569", fontWeight: 600, letterSpacing: "0.5px" }}>
+                  bash - codecraft@grid-node-1
+                </Typography>
+              </TerminalHeader>
+              
+              <TerminalBody>
+                <Stack spacing={1.5}>
+                  <CodeLine sx={{ color: "#475569" }}>
+                    $ <span style={{ color: "#38bdf8" }}>npm init</span> codecraft-env@latest
+                  </CodeLine>
+                  
+                  <CodeLine sx={{ color: "#10b981" }}>
+                    ✓ Fetching secure playground templates... [Done]
+                  </CodeLine>
+
+                  <Box sx={{ bgcolor: "rgba(30, 41, 59, 0.3)", border: "1px solid #1e293b", p: 1.5, borderRadius: "6px", my: 1 }}>
+                    <CodeLine sx={{ color: "#e2e8f0", mb: 0.5 }}>
+                      <span style={{ color: "#f43f5e" }}>const</span> sandbox = <span style={{ color: "#a855f7" }}>await</span> CodeCraft.<span style={{ color: "#60a5fa" }}>forge</span>({"{"}
+                    </CodeLine>
+                    <CodeLine sx={{ color: "#e2e8f0", pl: 2 }}>
+                      runtime: <span style={{ color: "#eab308" }}>'v8-isolated'</span>,
+                    </CodeLine>
+                    <CodeLine sx={{ color: "#e2e8f0", pl: 2 }}>
+                      autoDeploy: <span style={{ color: "#eab308" }}>true</span>
+                    </CodeLine>
+                    <CodeLine sx={{ color: "#e2e8f0" }}>
+                      {"}"});
+                    </CodeLine>
+                  </Box>
+
+                  <CodeLine sx={{ color: "#64748b" }}>
+                    $ sandbox --execute matrix_multiply.rs
+                  </CodeLine>
+
+                  <CodeLine sx={{ color: "#f59e0b" }}>
+                    [info] Allocating edge memory loops...
+                  </CodeLine>
+
+                  <CodeLine sx={{ color: "#10b981", fontWeight: 600 }}>
+                    <CheckCircleOutlineIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: "middle" }} />
+                    Success: Compiled in 0.04ms onto edge matrix.
+                  </CodeLine>
+
+                  <CodeLine sx={{ color: "#ffffff" }}>
+                    codecraft@grid-node-1:~<Cursor />
+                  </CodeLine>
+                </Stack>
+              </TerminalBody>
+            </TerminalFrame>
+          </Box>
+        </Box>
+      </Container>
+    </LandingWrapper>
   );
 }
 
-export default HomePage;
+export default LandingPage;
