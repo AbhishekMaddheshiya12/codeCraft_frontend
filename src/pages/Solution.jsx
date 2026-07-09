@@ -99,7 +99,7 @@ function Solution() {
           </PaneContainer>
 
           <PaneContainer>
-            <PlayGround tesTCases={tesTCases} problemId={problemId} />
+            <PlayGround tesTCases={tesTCases} problemId={problemId} problemData={problemdata} />
           </PaneContainer>
         </Split>
       )}

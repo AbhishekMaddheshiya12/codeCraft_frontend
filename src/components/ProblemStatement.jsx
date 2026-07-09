@@ -16,6 +16,8 @@ function ProblemStatement({ problemData, setIsSubmission }) {
   const [isSolved, setIsSolved] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  // console.log("Problem Data in ProblemStatement:", problemData);
+
   useEffect(() => {
     const config = {
       headers: { "Content-Type": "application/json" },

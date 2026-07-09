@@ -15,16 +15,16 @@ import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import SubmitAnimation from "./loader/SubmitAnimation";
 import {PlayGroundContainer, ActionButton, ConsoleBox} from "../styledComponents/StyledComp.jsx";
 
-function PlayGround({ tesTCCases }) {
+function PlayGround({ tesTCCases , problemData }) {
   const { problemId } = useParams();
   const userId = useSelector((state) => state.auth.user._id);
   const monaco = useMonaco();
 
-  const codeKey = `code_${problemId}`;
+const getCodeKey = (lang) => `code_${problemId}_${lang}`;
   const langKey = `selectedLanguage_${problemId}`;
 
   const [language, setLanguage] = useState(() => localStorage.getItem(langKey) || "javascript");
-  const [code, setCode] = useState(() => localStorage.getItem(codeKey) || "");
+const [code, setCode] = useState("");
   const [testCases, setTestCases] = useState(tesTCCases);
   const [story, setStory] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -33,16 +33,31 @@ function PlayGround({ tesTCCases }) {
 
   const language_id = { c: 1, cpp: 2, javascript: 9, java: 3, python: 4 };
 
-  useEffect(() => {
-    const savedCode = localStorage.getItem(codeKey);
-    const savedLang = localStorage.getItem(langKey);
-    
-    setCode(savedCode || "");
-    setLanguage(savedLang || "javascript");
+useEffect(() => {
+    const savedLang =
+        localStorage.getItem(langKey) || "javascript";
+
+    setLanguage(savedLang);
+
     setStory(null);
     setResponse(null);
     setTestCases(tesTCCases);
-  }, [problemId, codeKey, langKey, tesTCCases]);
+}, [problemId]);
+useEffect(() => {
+    if (!problemData) return;
+
+    const storageKey = getCodeKey(language);
+
+    const savedCode = localStorage.getItem(storageKey);
+
+    if (savedCode) {
+        setCode(savedCode);
+    } else {
+        setCode(
+            problemData.starterCode?.[language] || ""
+        );
+    }
+}, [language, problemData, problemId]);
 
   useEffect(() => {
     if (monaco) {
@@ -64,10 +79,15 @@ function PlayGround({ tesTCCases }) {
     localStorage.setItem(langKey, language);
   }, [language, langKey]);
 
-  const handleCodeChange = (value) => {
+const handleCodeChange = (value = "") => {
+
     setCode(value);
-    localStorage.setItem(codeKey, value);
-  };
+
+    localStorage.setItem(
+        getCodeKey(language),
+        value
+    );
+};
 
   const encodeBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
 

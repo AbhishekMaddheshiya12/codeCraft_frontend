@@ -1,6 +1,6 @@
 import React from "react";
 import { Link as link } from "react-router";
-import { Box, Button, Paper, styled, alpha,TableRow,Select,IconButton} from "@mui/material";
+import { Box, Button, Paper, styled, alpha,TableRow,Select,IconButton, keyframes} from "@mui/material";
 
 export const Link = styled(link)`
     color:black;
@@ -273,8 +273,85 @@ export const NavButton = styled(Button)(({ theme }) => ({
   borderRadius: '8px',
   transition: 'all 0.3s ease',
   '&:hover': {
-    color: "#38bdf8", // Sky blue text on hover
-    background: alpha("#38bdf8", 0.12), // Vibrant glow fill
+    color: "#10b981", // Sky blue text on hover
+    background: alpha("#10b981", 0.12), // Vibrant glow fill
     transform: 'translateY(-1px)'
   },
 }));
+
+const revealUp = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const pulseGlow = keyframes`
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.25; transform: scale(1.05); }
+`;
+
+export const ContestWrapper = styled(Box)({
+  minHeight: "100vh",
+  backgroundColor: "#090d16", 
+  color: "#f1f5f9",
+  display: "flex",
+  flexDirection: "column",
+  position: "relative",
+  overflow: "hidden",
+});
+
+export const MainContent = styled(Box)({
+  flex: 1,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 1,
+});
+
+export const TechGridOverlay = styled(Box)({
+  position: "absolute",
+  inset: 0,
+  pointerEvents: "none",
+  zIndex: 0,
+  backgroundImage: `
+    linear-gradient(to right, rgba(16, 185, 129, 0.02) 1px, transparent 1px), 
+    linear-gradient(to bottom, rgba(16, 185, 129, 0.02) 1px, transparent 1px)
+  `,
+  backgroundSize: "40px 40px",
+  maskImage: "radial-gradient(circle at center, black 40%, rgba(0,0,0,0.3) 70%, transparent 95%)",
+});
+
+export const CentralGlow = styled(Box)({
+  position: "absolute",
+  width: "500px",
+  height: "500px",
+  background: "radial-gradient(circle, #10b981, transparent 65%)",
+  filter: "blur(120px)",
+  zIndex: 0,
+  pointerEvents: "none",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  animation: `${pulseGlow} 8s ease-in-out infinite`,
+});
+
+export const CyberTimerCard = styled(Box)({
+  backgroundColor: "#050810",
+  border: "1px solid #1e293b",
+  borderRadius: "16px",
+  padding: "32px",
+  width: "100%",
+  maxWidth: "540px",
+  boxShadow: "0 25px 50px -12px rgba(2, 6, 23, 0.7), inset 0 1px 0px 0px rgba(255,255,255,0.03)",
+  textAlign: "center",
+  zIndex: 1,
+  animation: `${revealUp} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both`,
+});
+
+export const TimeBox = styled(Box)({
+  backgroundColor: "rgba(15, 23, 42, 0.6)",
+  border: "1px solid #1e293b",
+  borderRadius: "8px",
+  padding: "16px",
+  minWidth: "75px",
+  flex: 1,
+});

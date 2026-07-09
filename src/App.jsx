@@ -15,6 +15,7 @@ import ProtectedComponent from "./components/auth/ProtectedComponent.jsx";
 import problems from "./fakeData/problems.js";
 import Loader from "./components/loader/Loader.jsx";
 const HomePage = React.lazy(() => import("./pages/HomePage.jsx"));
+const Contest = React.lazy(() => import("./pages/Contest.jsx"));
 import { Toaster } from "react-hot-toast";
 import Options from "./components/Options.jsx";
 import LanguageModal from "./components/LanguageModel.jsx";
@@ -66,6 +67,7 @@ function App() {
             <Route path="/aboutUs" element={<AboutUs></AboutUs>}></Route>
             <Route path="/discuss" element={<Discuss></Discuss>}></Route>
             <Route path="/options" element={<LanguageModal></LanguageModal>}></Route>
+            <Route path="/contest" element={<Contest></Contest>}></Route>
           </Route>
           <Route
             path="/"

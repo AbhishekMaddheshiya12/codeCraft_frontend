@@ -11,23 +11,27 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {EditorNavWrapper, StyledSelect, ActionIcon} from "../styledComponents/StyledComp.jsx";
+import {
+  EditorNavWrapper,
+  StyledSelect,
+  ActionIcon,
+} from "../styledComponents/StyledComp.jsx";
 
 function NewNav({ setLanguage, language }) {
   const [fullScreen, setFullScreen] = useState(false);
 
-  // LOGIC PRESERVED EXACTLY AS ORIGINAL
   const changeHandler = (e) => {
     setLanguage(e.target.value);
   };
 
-  // LOGIC PRESERVED EXACTLY AS ORIGINAL
   const toggleFullScreen = () => {
     setFullScreen(!fullScreen);
     if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch((e) => {
-          console.error(`Error attempting to enable full-screen mode: ${e.message}`);
-        });
+      document.documentElement.requestFullscreen().catch((e) => {
+        console.error(
+          `Error attempting to enable full-screen mode: ${e.message}`,
+        );
+      });
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen();
@@ -37,7 +41,6 @@ function NewNav({ setLanguage, language }) {
 
   return (
     <EditorNavWrapper>
-      {/* UPGRADED DROP-DOWN MENUS WITH SYSTEM ACCENT OVERRIDES */}
       <Box sx={{ minWidth: 150 }}>
         <FormControl fullWidth size="small">
           <StyledSelect
@@ -47,7 +50,7 @@ function NewNav({ setLanguage, language }) {
             MenuProps={{
               PaperProps: {
                 sx: {
-                  bgcolor: "#090d16", 
+                  bgcolor: "#090d16",
                   border: "1px solid #1e293b",
                   borderRadius: "8px",
                   marginTop: "6px",
@@ -64,20 +67,20 @@ function NewNav({ setLanguage, language }) {
                     borderRadius: "4px",
                     transition: "all 0.15s ease-in-out",
                     "&:hover": {
-                      bgcolor: "rgba(16, 185, 129, 0.1)", 
+                      bgcolor: "rgba(16, 185, 129, 0.1)",
                       color: "#10b981",
                     },
                     "&.Mui-selected": {
-                      bgcolor: "rgba(16, 185, 129, 0.15)", 
+                      bgcolor: "rgba(16, 185, 129, 0.15)",
                       color: "#10b981",
                       fontWeight: 900,
                       "&:hover": {
                         bgcolor: "rgba(16, 185, 129, 0.2)",
-                      }
-                    }
-                  }
-                }
-              }
+                      },
+                    },
+                  },
+                },
+              },
             }}
           >
             <MenuItem value={"javascript"}>JAVASCRIPT</MenuItem>
@@ -89,12 +92,11 @@ function NewNav({ setLanguage, language }) {
         </FormControl>
       </Box>
 
-      {/* USER INTERACTION LOGIC LINKS */}
       <Box sx={{ display: "flex", gap: 1 }}>
         <ActionIcon onClick={() => console.log("System Settings Initialized")}>
           <SettingsIcon sx={{ fontSize: 18 }} />
         </ActionIcon>
-        
+
         <ActionIcon onClick={toggleFullScreen}>
           {fullScreen ? (
             <FullscreenExitIcon sx={{ fontSize: 20 }} />
